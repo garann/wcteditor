@@ -1,0 +1,32 @@
+<div class="wcte-container{{each userClasses}} ${$value}{{/each}}">
+	<div class="wcte-buttons">
+	{{if showBold}}
+		<button class="wcte-btn-bold">b</button>
+	{{/if}}
+	{{if showItalic}}
+		<button class="wcte-btn-italic">i</button>
+	{{/if}}
+	{{if showUnderline}}
+		<button class="wcte-btn-underline">u</button>
+	{{/if}}
+	{{if showNumList}}
+		<button class="wcte-btn-list-num">ol</button>
+	{{/if}}
+	{{if showBullList}}
+		<button class="wcte-btn-list-bull">ul</button>
+	{{/if}}
+	{{if showLink}}
+		<button class="wcte-btn-link">a</button>
+	{{/if}}
+	{{if showStripHtml}}
+		<button class="wcte-btn-strip">strip html</button>
+	{{/if}}
+	{{if showSpellCheck}}
+		<button class="wcte-btn-spell">spell-check</button>
+	{{/if}}
+	</div>
+	<div class="wcte-editor" contenteditable="true">{{html defaultText}}</div>
+	{{if showCharCount}}
+		{{tmpl "charCountTemplate"}}
+	{{/if}}
+</div>

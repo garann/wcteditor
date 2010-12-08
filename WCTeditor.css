@@ -1,0 +1,5 @@
+.wcte-container { overflow: hidden; }
+.wcte-buttons { overflow: hidden; margin-bottom: 5px; }
+.wcte-buttons button { float: left; margin-right: 2px; padding: 2px 5px; background-color: #eee; border: 1px solid #999; -moz-border-radius: 2px; -webkit-border-radius: 2px; }
+.wcte-buttons button:hover, .wcte-buttons button.active { background-color: #ddd; }
+.wcte-editor { width: 500px; height: 200px; background-color: #fff; padding: 5px; border: 1px solid #999; -moz-border-radius: 2px; -webkit-border-radius: 2px;  }
