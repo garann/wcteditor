@@ -26,7 +26,7 @@
 				userClasses: [],
 				defaultText: "",
 				showCharCount: false,
-				charCountTmpl: "Characters remaining: ${chars}",
+				charCountTmpl: "Characters remaining: {{html chars}}",
 				maxLength: 0
 			},
 			that = $.extend(true,{},defaults,config),
@@ -55,17 +55,20 @@
 		};
 		
 		that.updateCharCount = function() {
-//			var l = that.maxLength - that.editor.html().length,
-//				t = $(that.charCount).tmplItem();
-//			t.data.chars = l;
-//			t.update();
+			var l = that.maxLength - that.editor.html().length;
+			that.charCount.removeClass("tooLong");
+			that.charCount.html(l);
+			if (l < 0) that.charCount.addClass("tooLong");
 		};
 
 		that.updateButtons = function() {
 			$("div.wcte-buttons button",that.container).removeClass("active");
-			var range = getRange(),
-				sel = $(range.startContainer ? range.startContainer : range.parentElement()),
-				parents = sel.parentsUntil("div.wcte-editor");
+			var range = getRange();
+			if (range.startContainer) {
+				parents = $(range.startContainer).parentsUntil("div.wcte-editor");
+			} else {
+				parents = $(range.parentElement()).parentsUntil("div.wcte-editor").andSelf();
+			}
 			parents.each(function() {
 				var tag = this.tagName.toLowerCase(),
 					btn = that.buttons[tag];
@@ -91,12 +94,12 @@
 			
 		that.defaultText = textarea.val();
 		that.maxLength = textarea.attr("maxlength");
-		that.chars = that.maxLength;
+		that.chars = '<span class="chars">' + that.maxLength + '</span>';
 		textarea.after($.tmpl("wcteditorTemplate",that));			
 		textarea.hide();
 		that.container = textarea.next("div.wcte-container");
 		that.editor = that.container.find("div.wcte-editor");
-		if (that.showCharCount) that.charCount = that.editor.next();
+		if (that.showCharCount) that.charCount = that.container.find("div.wcte-charCount span.chars");
 
 		// setup button actions
 		that.container.delegate(".wcte-btn-bold","click",function(e) {

@@ -1,5 +1,7 @@
 .wcte-container { overflow: hidden; }
 .wcte-buttons { overflow: hidden; margin-bottom: 5px; }
-.wcte-buttons button { float: left; margin-right: 2px; padding: 2px 5px; background-color: #eee; border: 1px solid #999; -moz-border-radius: 2px; -webkit-border-radius: 2px; }
-.wcte-buttons button:hover, .wcte-buttons button.active { background-color: #ddd; }
-.wcte-editor { width: 500px; height: 200px; background-color: #fff; padding: 5px; border: 1px solid #999; -moz-border-radius: 2px; -webkit-border-radius: 2px;  }
+.wcte-buttons button { float: left; margin-top: 0px; margin-right: 2px; margin-bottom: 2px; padding: 2px 5px; background-color: #eee; border: 1px solid #999; -moz-border-radius: 2px; -webkit-border-radius: 2px; -moz-box-shadow: 0px 1px 1px #aaa; -webkit-box-shadow: 0px 1px 1px #aaa; }
+.wcte-buttons button:hover, .wcte-buttons button.active { background-color: #ddd; -moz-box-shadow: 0px -1px 1px #aaa; -webkit-box-shadow: 0px -1px 1px #aaa; margin-top: 1px; margin-bottom: 1px; }
+.wcte-editor { width: 500px; height: 200px; background-color: #fff; padding: 5px; border: 1px solid #999; -moz-border-radius: 2px; -webkit-border-radius: 2px; overflow-y: scroll;  }
+.wcte-charCount { width: 500px; text-align: right; padding-top: 5px; font-size: 10px; }
+.wcte-charCount .tooLong { color: #f00; }

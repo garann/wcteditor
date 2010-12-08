@@ -27,6 +27,8 @@
 	</div>
 	<div class="wcte-editor" contenteditable="true">{{html defaultText}}</div>
 	{{if showCharCount}}
-		{{tmpl "charCountTemplate"}}
+		<div class="wcte-charCount">
+			{{tmpl "charCountTemplate"}}
+		</div>
 	{{/if}}
 </div>
