@@ -8,7 +8,7 @@ A super-simple text editor for modern browsers. Supports:
 + numbered lists
 + bulleted lists
 + links
-+ stripping excess html (_coming soon!_)
++ stripping html (except line breaks/paragraphs)
 + spell-check via callback (_coming soon!_)
 
 Tested so far and works ok in:
