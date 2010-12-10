@@ -32,64 +32,64 @@ Yay! Done.
 
 ## Options ##
 
-### showBold ### 
-boolean
-Whether or not you'd like the bold button to be shown.
+### showBold ###
+boolean:
+Whether or not you'd like the bold button to be shown. On by default.
 
-### showItalic ### 
-boolean
-Whether or not you'd like the italicize button to be shown.
+### showItalic ###
+boolean:
+Whether or not you'd like the italicize button to be shown. On by default.
 
-### showUnderline ### 
-boolean
+### showUnderline ###
+boolean:
 Whether or not you'd like the underline button to be shown.
 
-### showNumList ### 
-boolean
+### showNumList ###
+boolean:
 Whether or not you'd like the ordered list button to be shown.
 
-### showBullList ### 
-boolean
+### showBullList ###
+boolean:
 Whether or not you'd like the unordered list button to be shown.
 
-### showLink ### 
-boolean
-Whether or not you'd like the link button to be shown.
+### showLink ###
+boolean:
+Whether or not you'd like the link button to be shown. On by default.
 
-### showStripHtml ### 
-boolean
+### showStripHtml ###
+boolean:
 Whether or not you'd like the strip/clean up HTML button to be shown.
 
-### showSpellCheck ### 
-boolean
+### showSpellCheck ###
+boolean:
 Whether or not you'd like the spellcheck button to be shown.
 
 ### userClasses ###
-array of strings
+array of strings:
 CSS classes you'd like to have applied to the div that wraps the editor.
 
 ### defaultText ###
-string
+string:
 Text you want the editor to display with, if different than what's in your textarea.
 
 ### showCharCount ###
-boolean
+boolean:
 Whether or not you'd like to show a character counter. See below for where to change the way the character counter works.
 
 ### charCountTmpl ###
-string
+string:
 The template for your character counter. This can be just text or some HTML, but you need to insert "{{html chars}}" where you want the count to actually appear.
 
 ### maxLength ###
-integer
+integer:
 The maximum length of the user's input, including HTML, if different than the maxlength of your textarea.
 
 ### spellcheckUrl ###
-string
+string:
 Path to the spellchecking service you'd like to call. 
 
 ### pathToPlugin ###
-string
+string:
 Location of this plugin (i.e., location of WCTeditor.js) relative to the file it's being implemented in.
 
 ## Functions ##
@@ -110,6 +110,7 @@ Updates the state of the formatting buttons depending on the cursor location.
 
 ### setLink ###
 args: leftPosition (left position of formatting button)
+
 Displays the interface to set a URL and wires up the button in that interface to update the editor markup.
 
 ### stripHTML ###
