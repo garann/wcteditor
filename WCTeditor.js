@@ -5,55 +5,54 @@
 
 (function($) {
 
-	$.get("../WCTeditor.css", function(r) {
-		$("head").append('<style media="all">' + r + '</style>');
-	});
-	$.template('linkModalTemplate','<div class="linkModal"><label>URL:<input type="text"/></label><button>OK</button></div>');
-	$.get("../tmpl/editor-tmpl.txt", function(r) {
-		$.template("wcteditorTemplate",r);
-	});
-
 	$.fn.WCTeditor = function(config) {
 		var defaults = {
 				showBold: true,
 				showItalic: true,
-				showUnderline: true,
-				showNumList: true,
-				showBullList: true,
+				showUnderline: false,
+				showNumList: false,
+				showBullList: false,
 				showLink: true,
-				showStripHtml: true,
-				showSpellCheck: true,
+				showStripHtml: false,
+				showSpellCheck: false,
 				userClasses: [],
 				defaultText: "",
 				showCharCount: false,
 				charCountTmpl: "Characters remaining: {{html chars}}",
-				maxLength: 0
+				maxLength: 0,
+				spellcheckUrl: "",
+				pathToPlugin:""
 			},
-			that = $.extend(true,{},defaults,config),
-			textarea = this;
-			
-		$.template("charCountTemplate",that.charCountTmpl);		
+			that = $.extend(true,{},defaults,config);
+		that.textarea = this;
 
-		if (!$.template("wcteditorTemplate").length) {
-			$.get("../tmpl/editor-tmpl.txt", function(r) {
-				$.template("wcteditorTemplate",r);
-				that = init(textarea, that);
-			});
-		} else {
-			that = init(textarea, that);
-		}	
+		// load editor templates and basic CSS
+		$.get(that.pathToPlugin + "WCTeditor.css", function(r) {
+			$("head").append('<style media="all">' + r + '</style>');
+		});
+		$.template('linkModalTemplate','<div class="wcte-linkModal"><label>URL:<input type="text"/></label><button>OK</button></div>');
+		$.get(that.pathToPlugin + "tmpl/editor-tmpl.txt", function(r) {
+			$.template("wcteditorTemplate",r);
+			// render editor
+			that = init(that);
+		});			
+		$.template("charCountTemplate",that.charCountTmpl);	
 
+		// do basic designMode commands
 		that.applyFormatting = function(type) {
 			document.execCommand(type, null, null);
 			that.updateTextarea();
 		};
 
+		// mirror changes in original textarea
 		that.updateTextarea = function() {
 			var current = that.editor.html();
-			textarea.val(current);
+			that.textarea.val(current);
 			if (that.showCharCount) that.updateCharCount();
+			return that;
 		};
 		
+		// update character counter
 		that.updateCharCount = function() {
 			var l = that.maxLength - that.editor.html().length;
 			that.charCount.removeClass("tooLong");
@@ -61,6 +60,7 @@
 			if (l < 0) that.charCount.addClass("tooLong");
 		};
 
+		// show correct formatting button states for cursor position
 		that.updateButtons = function() {
 			$("div.wcte-buttons button",that.container).removeClass("active");
 			var range = getRange();
@@ -85,69 +85,107 @@
 					if (t.css("text-decoration") == "underline") that.buttons["u"].addClass("active");
 				}
 			});
+			return that;	
+		};
+				
+		// show interface to add a URL to current selection
+		that.setLink = function(leftPosition) {
+			var linkText = getRange();
+			that.container.append($.tmpl("linkModalTemplate",null));
+			var modal = that.container.find("div.wcte-linkModal");
+			modal.css("left",leftPosition);
+			modal.find("button").click(function(e) {
+				e.preventDefault();
+				var link = modal.find("input").val();
+				setSelection(linkText);
+				document.execCommand("createLink",null,(link.indexOf("//") < 0 ? "http://" + link : link));
+				modal.remove();
+			});	
+			return that;				
 		};
 
+		// remove all markup except paragraphs and line breaks
 		that.stripHTML = function() {
 			var strippedContent = that.editor.html().replace(/<!(?:--[\s\S]*?--\s*)?>\s*/g,"");
 			strippedContent = strippedContent.replace(/(\<)\/?(?!br(\s|\/|\>))(?!(\/)?p)(.*?)\>/gi,"");
 			strippedContent = strippedContent.replace(/<p(?:[\s\S]*?>)/gi,"<p>");
 			strippedContent = strippedContent.replace(/<p>(?:\s*(\&nbsp;)*\s*)?<\/p>/gi,"");
 			that.editor.html(strippedContent);
+			return that;	
+		};
+
+		that.spellcheck = function() {
+			// get text
+			// receive misspellings [] of {originalWord:string,suggestions:[]} - same word misspelled 2x gets 2 entries
+			// display spellcheck banner until misspellings.length == 0, then notify and fade out
+			// find misspelled words in editor.html()
+			// wrap misspellings in <span class="misspelled">
+			// click on .misspelled shows list of suggestions + "Ignore"
+			// click anywhere in list removes misspellings entry, span.misspelled
+			// check misspellings length, if 0 hide
 		};
 
 		return that;
 	};
 
-	function init(textarea, that) {
+	function init(that) {
 			
-		that.defaultText = textarea.val();
-		that.maxLength = textarea.attr("maxlength");
-		that.chars = '<span class="chars">' + that.maxLength + '</span>';
-		textarea.after($.tmpl("wcteditorTemplate",that));			
-		textarea.hide();
-		that.container = textarea.next("div.wcte-container");
+		that = $.extend(true,that,{
+			defaultText: that.textarea.val(),
+			maxLength: that.textarea.attr("maxlength"),
+			chars: '<span class="chars">' + that.maxLength + '</span>'
+		});
+		that.textarea.after($.tmpl("wcteditorTemplate",that)).hide();
+		that.container = that.textarea.next("div.wcte-container");
 		that.editor = that.container.find("div.wcte-editor");
 		if (that.showCharCount) that.charCount = that.container.find("div.wcte-charCount span.chars");
 
 		// setup button actions
-		that.container.delegate(".wcte-btn-bold","click",function(e) {
+		that.container
+		.delegate(".wcte-btn-bold","click",function(e) {
 			that.applyFormatting("bold");
 			$(this).addClass("active");
 			return false;
-		});
-		that.container.delegate(".wcte-btn-italic","click",function(e) {
+		})
+		.delegate(".wcte-btn-italic","click",function(e) {
 			that.applyFormatting("italic");
 			$(this).addClass("active");
 			return false;
-		});
-		that.container.delegate(".wcte-btn-underline","click",function(e) {
+		})
+		.delegate(".wcte-btn-underline","click",function(e) {
 			that.applyFormatting("underline");
 			$(this).addClass("active");
 			return false;
-		});
-		that.container.delegate(".wcte-btn-list-num","click",function(e) {
+		})
+		.delegate(".wcte-btn-list-num","click",function(e) {
 			that.applyFormatting("insertOrderedList");
 			$(this).addClass("active");
 			return false;
-		});
-		that.container.delegate(".wcte-btn-list-bull","click",function(e) {
+		})
+		.delegate(".wcte-btn-list-bull","click",function(e) {
 			that.applyFormatting("insertUnorderedList");
 			$(this).addClass("active");
 			return false;
-		});
-		that.container.delegate(".wcte-btn-link","click",function(e) {
-			setLink(that);
-			$(this).addClass("active");
+		})
+		.delegate(".wcte-btn-link","click",function(e) {
+			var t = $(this);
+			if (!t.hasClass("active")) {
+				that.setLink(t.position().left);
+				t.addClass("active");
+			} else {
+				that.applyFormatting("unlink");
+				t.removeClass("active");
+			}
 			return false;
-		});
-		that.container.delegate(".wcte-btn-strip","click",function(e) {
+		})
+		.delegate(".wcte-btn-strip","click",function(e) {
 			that.stripHTML();
+		})
+		.delegate(".wcte-btn-spell","click",function(e) {
+			that.spellcheck();
 		});
-		/*that.container.delegate(".wcte-btn-bold","click",function(e) {
-			that.applyFormatting("bold");
-			$(this).addClass("active");
-		});*/
 
+		// save references to buttons
 		that.buttons = [];
 		that.buttons["b"] = $("button.wcte-btn-bold",that.container);
 		that.buttons["i"] = $("button.wcte-btn-italic",that.container);
@@ -157,24 +195,10 @@
 		that.buttons["a"] = $("button.wcte-btn-link",that.container);
 
 		that.editor.bind("keyup click",function(e) {
-			that.updateButtons();
-			that.updateTextarea();
+			that.updateButtons().updateTextarea();
 		});
 
 		return that;
-	}
-
-	function setLink(that) {
-		var linkText = getRange();
-		that.container.append($.tmpl("linkModalTemplate",null));
-		var modal = that.container.find("div.linkModal");
-		modal.find("button").click(function(e) {
-			e.preventDefault();
-			var link = modal.find("input").val();
-			setSelection(linkText);
-			document.execCommand("createLink",null,(link.indexOf("//") < 0 ? "http://" + link : link));
-			modal.remove();
-		});					
 	}
 
 	function getRange() {

@@ -20,7 +20,11 @@
 	<script src="../WCTeditor.js"></script>
 	<script>
 		$(document).ready(function() {
-			$("#myTextArea").WCTeditor({defaultText:"this is <i>only</i> a test",showCharCount:true});
+			$("#myTextArea").WCTeditor({
+				defaultText:"this is <i>only</i> a test",
+				showCharCount:true,
+				pathToPlugin:"../"
+			});
 		});
 	</script>
 </body>
