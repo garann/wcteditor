@@ -5,6 +5,9 @@
 .wcte-editor { width: 500px; height: 200px; background-color: #fff; padding: 5px; border: 1px solid #999; -moz-border-radius: 2px; -webkit-border-radius: 2px; overflow-y: scroll;  }
 .wcte-charCount { width: 500px; text-align: right; padding-top: 5px; font-size: 10px; }
 .wcte-charCount .tooLong { color: #f00; }
-.wcte-linkModal { position: absolute; top: 25px; border: 1px solid #999; background-color: #fafafa; padding: 5px; -moz-border-radius: 2px; -webkit-border-radius: 2px; }
+.wcte-modal { border: 1px solid #999; background-color: #fafafa; padding: 5px; -moz-border-radius: 2px; -webkit-border-radius: 2px; }
+.wcte-linkModal { position: absolute; top: 25px; }
 .wcte-linkModal input { margin: 0px 5px; }
 .wcte-linkModal button { padding: 2px 5px; background-color: #eee; border: 1px solid #999; -moz-border-radius: 2px; -webkit-border-radius: 2px; }
+.wcte-linkModal a { cursor: pointer; margin-left: 5px; }
+.wcte-linkOverlay { position: absolute; }

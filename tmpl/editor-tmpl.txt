@@ -17,6 +17,7 @@
 	{{/if}}
 	{{if showLink}}
 		<button class="wcte-btn-link">a</button>
+		<button class="wcte-btn-unlink">/a</button>
 	{{/if}}
 	{{if showStripHtml}}
 		<button class="wcte-btn-strip">strip html</button>

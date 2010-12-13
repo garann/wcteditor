@@ -16,21 +16,24 @@
 				showStripHtml: false,
 				showSpellCheck: false,
 				userClasses: [],
-				defaultText: "",
+				defaultText: "<br/>",
 				showCharCount: false,
 				charCountTmpl: "Characters remaining: {{html chars}}",
+				showLinkOverlays: true,
 				maxLength: 0,
 				spellcheckUrl: "",
-				pathToPlugin:""
+				pathToPlugin:"",
+				theme: ""
 			},
 			that = $.extend(true,{},defaults,config);
 		that.textarea = this;
 
 		// load editor templates and basic CSS
-		$.get(that.pathToPlugin + "WCTeditor.css", function(r) {
+		$.get((that.theme.length?that.pathToPlugin+"themes/"+that.theme+"/":that.pathToPlugin) + "WCTeditor.css", function(r) {
 			$("head").append('<style media="all">' + r + '</style>');
 		});
-		$.template('linkModalTemplate','<div class="wcte-linkModal"><label>URL:<input type="text"/></label><button>OK</button></div>');
+		$.template('linkModalTemplate','<div class="wcte-linkModal wcte-modal"><label>URL:<input type="text" value="${href}"/></label><button>OK</button><a>Cancel</a></div>');
+		$.template('linkOverlayTemplate','<div class="wcte-linkOverlay wcte-modal" contenteditable="false">${url}<br/><a href="${url}" target="_blank">Open link</a></div>');
 		$.get(that.pathToPlugin + "tmpl/editor-tmpl.txt", function(r) {
 			$.template("wcteditorTemplate",r);
 			// render editor
@@ -54,7 +57,7 @@
 		
 		// update character counter
 		that.updateCharCount = function() {
-			var l = that.maxLength - that.editor.html().length;
+			var l = that.maxLength - that.editor.text().length;
 			that.charCount.removeClass("tooLong");
 			that.charCount.html(l);
 			if (l < 0) that.charCount.addClass("tooLong");
@@ -91,7 +94,10 @@
 		// show interface to add a URL to current selection
 		that.setLink = function(leftPosition) {
 			var linkText = getRange();
-			that.container.append($.tmpl("linkModalTemplate",null));
+			var href = (linkText.startContainer ? 
+				$(linkText.startContainer).closest("a") :
+				$(linkText.parentElement()) || $(linkText.parentElement()).closest("a")).attr("href");
+			that.container.append($.tmpl("linkModalTemplate",{href: href}));
 			var modal = that.container.find("div.wcte-linkModal");
 			modal.css("left",leftPosition);
 			modal.find("button").click(function(e) {
@@ -101,6 +107,10 @@
 				document.execCommand("createLink",null,(link.indexOf("//") < 0 ? "http://" + link : link));
 				modal.remove();
 			});	
+			modal.find("a").click(function(e) {
+				e.preventDefault();
+				modal.remove();
+			});
 			return that;				
 		};
 
@@ -131,7 +141,7 @@
 	function init(that) {
 			
 		that = $.extend(true,that,{
-			defaultText: that.textarea.val(),
+			defaultText: that.textarea.val() + "<br/>",
 			maxLength: that.textarea.attr("maxlength"),
 			chars: '<span class="chars">' + that.maxLength + '</span>'
 		});
@@ -169,13 +179,12 @@
 		})
 		.delegate(".wcte-btn-link","click",function(e) {
 			var t = $(this);
-			if (!t.hasClass("active")) {
-				that.setLink(t.position().left);
-				t.addClass("active");
-			} else {
-				that.applyFormatting("unlink");
-				t.removeClass("active");
-			}
+			that.setLink(t.position().left);
+			t.addClass("active");
+			return false;
+		})
+		.delegate(".wcte-btn-unlink","click",function(e) {
+			that.applyFormatting("unlink");
 			return false;
 		})
 		.delegate(".wcte-btn-strip","click",function(e) {
@@ -195,7 +204,17 @@
 		that.buttons["a"] = $("button.wcte-btn-link",that.container);
 
 		that.editor.bind("keyup click",function(e) {
+			$(this).find("div.wcte-modal").remove();
 			that.updateButtons().updateTextarea();
+		})
+		.focus(function(){
+			setSelection(getRange());
+		})
+		.delegate("a","click",function(e) {
+			e.stopPropagation();
+			var t = $(this), pos = t.position();
+			t.after($.tmpl("linkOverlayTemplate",{url:t.attr("href")}));
+			t.siblings("div.wcte-modal").css("left",pos.left).css("top",pos.top + 20);
 		});
 
 		return that;
