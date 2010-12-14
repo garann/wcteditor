@@ -189,9 +189,11 @@
 		})
 		.delegate(".wcte-btn-strip","click",function(e) {
 			that.stripHTML();
+			return false;
 		})
 		.delegate(".wcte-btn-spell","click",function(e) {
 			that.spellcheck();
+			return false;
 		});
 
 		// save references to buttons
