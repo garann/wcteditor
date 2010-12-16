@@ -115,13 +115,14 @@
 		};
 
 		// remove all markup except paragraphs and line breaks
-		that.stripHTML = function() {
-			var strippedContent = that.editor.html().replace(/<!(?:--[\s\S]*?--\s*)?>\s*/g,"");
-			strippedContent = strippedContent.replace(/(\<)\/?(?!br(\s|\/|\>))(?!(\/)?p)(.*?)\>/gi,"");
-			strippedContent = strippedContent.replace(/<p(?:[\s\S]*?>)/gi,"<p>");
-			strippedContent = strippedContent.replace(/<p>(?:\s*(\&nbsp;)*\s*)?<\/p>/gi,"");
-			that.editor.html(strippedContent);
-			return that;	
+		that.stripHTML = function(html) {
+			var strippedContent = html.replace(/<!(?:--[\s\S]*?--\s*)?>\s*/g,"");						// comments.. does this even work? innerhtml seems to dump html comments
+			strippedContent = strippedContent.replace(/\r\n|\r|\n/g,"<br/>");							// non-html line breaks
+			strippedContent = strippedContent.replace(/\u00A0\u00A0/g," ");								// tons of spaces
+			strippedContent = strippedContent.replace(/(\<)\/?(?!br(\s|\/|\>))(?!(\/)?p)(.*?)\>/gi,"");	// tags that are not <br> or <p>
+			strippedContent = strippedContent.replace(/<p(?:[\s\S]*?>)/gi,"<p>");						// attributes in <p> tags
+			strippedContent = strippedContent.replace(/<p>(?:\s*(\&nbsp;)*\s*)?<\/p>/gi,"");			// empty paragraphs
+			return strippedContent;	
 		};
 
 		that.spellcheck = function() {
@@ -188,7 +189,7 @@
 			return false;
 		})
 		.delegate(".wcte-btn-strip","click",function(e) {
-			that.stripHTML();
+			that.editor.html(that.stripHTML($.trim(that.editor.html())));
 			return false;
 		})
 		.delegate(".wcte-btn-spell","click",function(e) {
@@ -208,6 +209,25 @@
 		that.editor.bind("keyup click",function(e) {
 			$(this).find("div.wcte-modal").remove();
 			that.updateButtons().updateTextarea();
+		})
+		.bind("paste",function(e) {
+			// automatically strip HTML from pasted content for non-IE browsers
+			if (document.createRange) {
+				document.execCommand("insertHorizontalRule", null, null);
+				window.setTimeout(function(){
+					document.execCommand("insertHorizontalRule", null, null);
+					var hr = that.editor.find("hr").eq(0),
+						inserted = hr.nextUntil("hr"),
+						range = document.createRange();
+					if (inserted.length) {						
+						range.selectNode(inserted[0]); 
+						var cleandup = that.stripHTML(range.toString().trim());
+						range.deleteContents();
+						hr.after(cleandup);
+					}
+					that.editor.find("hr").remove();
+				},1);
+			}
 		})
 		.focus(function(){
 			setSelection(getRange());
