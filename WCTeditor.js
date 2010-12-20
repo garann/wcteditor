@@ -106,6 +106,7 @@
 				setSelection(linkText);
 				document.execCommand("createLink",null,(link.indexOf("//") < 0 ? "http://" + link : link));
 				modal.remove();
+				that.updateTextarea();
 			});	
 			modal.find("a").click(function(e) {
 				e.preventDefault();
@@ -186,10 +187,12 @@
 		})
 		.delegate(".wcte-btn-unlink","click",function(e) {
 			that.applyFormatting("unlink");
+			that.updateTextarea();
 			return false;
 		})
 		.delegate(".wcte-btn-strip","click",function(e) {
 			that.editor.html(that.stripHTML($.trim(that.editor.html())));
+			that.updateTextarea();
 			return false;
 		})
 		.delegate(".wcte-btn-spell","click",function(e) {

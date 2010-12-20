@@ -1,29 +1,29 @@
 <div class="wcte-container{{each userClasses}} ${$value}{{/each}}">
 	<div class="wcte-buttons">
 	{{if showBold}}
-		<button class="wcte-btn-bold">b</button>
+		<button class="wcte-btn-bold" title="make text bold">b</button>
 	{{/if}}
 	{{if showItalic}}
-		<button class="wcte-btn-italic">i</button>
+		<button class="wcte-btn-italic" title="make text italic">i</button>
 	{{/if}}
 	{{if showUnderline}}
-		<button class="wcte-btn-underline">u</button>
+		<button class="wcte-btn-underline" title="underline text">u</button>
 	{{/if}}
 	{{if showNumList}}
-		<button class="wcte-btn-list-num">ol</button>
+		<button class="wcte-btn-list-num" title="create numbered list">ol</button>
 	{{/if}}
 	{{if showBullList}}
-		<button class="wcte-btn-list-bull">ul</button>
+		<button class="wcte-btn-list-bull" title="create bulleted list">ul</button>
 	{{/if}}
 	{{if showLink}}
-		<button class="wcte-btn-link">a</button>
-		<button class="wcte-btn-unlink">/a</button>
+		<button class="wcte-btn-link" title="link selected text">a</button>
+		<button class="wcte-btn-unlink" title="unlink selected text">/a</button>
 	{{/if}}
 	{{if showStripHtml}}
-		<button class="wcte-btn-strip">strip html</button>
+		<button class="wcte-btn-strip" title="remove markup">strip html</button>
 	{{/if}}
 	{{if showSpellCheck}}
-		<button class="wcte-btn-spell">spell-check</button>
+		<button class="wcte-btn-spell" title="spell-check">spell-check</button>
 	{{/if}}
 	</div>
 	<div class="wcte-editor" contenteditable="true">{{html defaultText}}</div>
