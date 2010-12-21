@@ -65,6 +65,7 @@
 
 		// show correct formatting button states for cursor position
 		that.updateButtons = function() {
+			if (that.editor.text().length < 1) return that;
 			$("div.wcte-buttons button",that.container).removeClass("active");
 			var range = getRange();
 			if (range.startContainer) {
@@ -126,6 +127,14 @@
 			return strippedContent;	
 		};
 
+		// remove html comments from textarea b/c innerHTML of contenteditable element doesn't include them
+		that.stripHTMLComments = function() {
+			var html = that.textarea.val(),
+				strippedContent = html.replace(/<!(?:--[\s\S]*?--\s*)?>\s*/g,"");
+			that.textarea.val(strippedContent);
+			that.editor.html(strippedContent);
+		};
+
 		that.spellcheck = function() {
 			// get text
 			// receive misspellings [] of {originalWord:string,suggestions:[]} - same word misspelled 2x gets 2 entries
@@ -143,7 +152,7 @@
 	function init(that) {
 			
 		that = $.extend(true,that,{
-			defaultText: that.textarea.val() + "<br/>",
+			defaultText: that.textarea.val() + "&nbsp;",
 			maxLength: that.textarea.attr("maxlength"),
 			chars: '<span class="chars">' + that.maxLength + '</span>'
 		});
@@ -193,6 +202,7 @@
 		.delegate(".wcte-btn-strip","click",function(e) {
 			that.editor.html(that.stripHTML($.trim(that.editor.html())));
 			that.updateTextarea();
+			that.stripHTMLComments();
 			return false;
 		})
 		.delegate(".wcte-btn-spell","click",function(e) {
@@ -229,10 +239,13 @@
 						hr.after(cleandup);
 					}
 					that.editor.find("hr").remove();
+					that.updateTextarea()
+					that.stripHTMLComments();
 				},1);
 			}
 		})
 		.focus(function(){
+			if (that.editor.text().length > 0)
 			setSelection(getRange());
 		})
 		.delegate("a","click",function(e) {
