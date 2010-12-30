@@ -49,7 +49,7 @@
 
 		// mirror changes in original textarea
 		that.updateTextarea = function() {
-			var current = that.editor.html();
+			var current = that.editor.html().replace(/&nbsp;/g," ");
 			that.textarea.val(current);
 			if (that.showCharCount) that.updateCharCount();
 			return that;
@@ -150,7 +150,8 @@
 	};
 
 	function init(that) {
-			
+		// check to make sure contenteditable works - otherwise ABORT! ABORT! ABORT!
+		if (supportsContentEditable()) {	
 		that = $.extend(true,that,{
 			defaultText: that.textarea.val() + "&nbsp;",
 			maxLength: that.textarea.attr("maxlength"),
@@ -254,7 +255,7 @@
 			t.after($.tmpl("linkOverlayTemplate",{url:t.attr("href")}));
 			t.siblings("div.wcte-modal").css("left",pos.left).css("top",pos.top + 20);
 		});
-
+		}
 		return that;
 	}
 
@@ -270,6 +271,19 @@
 			selection.removeAllRanges();
 			selection.addRange(range);
 		}
+	}
+
+	function supportsContentEditable() {
+		if (!document.execCommand) 
+			return false;
+		var uagent = navigator.userAgent.toLowerCase();
+		if (uagent.indexOf("iphone") > -1 || uagent.indexOf("ipod") > -1 || uagent.indexOf("ipad") > -1) 
+			return false;
+		if (uagent.indexOf("android") > -1) 
+			return false;
+		if (uagent.indexOf("webkit") > -1 && uagent.indexOf("symbian") > -1)
+			return false;
+		return true;
 	}
 
 })(jQuery);
