@@ -1,13 +1,15 @@
 .wcte-container { position: relative; }
 .wcte-buttons { margin-bottom: 1px; }
 .wcte-buttons button {  }
-.wcte-buttons button:hover, .wcte-buttons button.active {  }
+.wcte-buttons button:hover, .wcte-buttons button.active, .wcte-buttons button.errors {  }
 .wcte-editor { height: 100px; background-color: #fff; padding: 5px; border: 1px solid #999; overflow-y: scroll;  }
+.wcte-editor font { cursor: pointer; }
 .wcte-charCount { text-align: right; padding-top: 1px; }
 .wcte-charCount .tooLong { color: #f00; }
-.wcte-modal { background-color: #f6f6f6; border: 1px solid #aaa; padding: 5px; }
+.wcte-modal { background-color: #f6f6f6; border: 1px solid #aaa; padding: 5px; z-index: 2; }
 .wcte-linkModal { position: absolute; top: 25px; }
 .wcte-linkModal input { margin: 0px 5px; }
 .wcte-linkModal button {  }
 .wcte-linkModal a { cursor: pointer; margin-left: 5px; }
-.wcte-linkOverlay { position: absolute; }
+.wcte-linkOverlay, .wcte-spellCheckModal { position: absolute; }
+.wcte-spellCheckModal { max-height: 100px; width: 200px; overflow-y: auto; }

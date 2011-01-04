@@ -1,13 +1,15 @@
 .wcte-container { overflow: hidden; position: relative; }
 .wcte-buttons { overflow: hidden; margin-bottom: 5px; }
 .wcte-buttons button { float: left; margin-top: 0px; margin-right: 2px; margin-bottom: 2px; padding: 2px 5px; background-color: #eee; border: 1px solid #999; -moz-border-radius: 2px; -webkit-border-radius: 2px; -moz-box-shadow: 0px 1px 1px #aaa; -webkit-box-shadow: 0px 1px 1px #aaa; }
-.wcte-buttons button:hover, .wcte-buttons button.active { background-color: #ddd; -moz-box-shadow: 0px -1px 1px #aaa; -webkit-box-shadow: 0px -1px 1px #aaa; margin-top: 1px; margin-bottom: 1px; }
+.wcte-buttons button:hover, .wcte-buttons button.active, .wcte-buttons button.errors { background-color: #ddd; -moz-box-shadow: 0px -1px 1px #aaa; -webkit-box-shadow: 0px -1px 1px #aaa; margin-top: 1px; margin-bottom: 1px; }
 .wcte-editor { width: 500px; height: 200px; background-color: #fff; padding: 5px; border: 1px solid #999; -moz-border-radius: 2px; -webkit-border-radius: 2px; overflow-y: scroll;  }
+.wcte-editor font { cursor: pointer; }
 .wcte-charCount { width: 500px; text-align: right; padding-top: 5px; font-size: 10px; }
 .wcte-charCount .tooLong { color: #f00; }
-.wcte-modal { border: 1px solid #999; background-color: #fafafa; padding: 5px; -moz-border-radius: 2px; -webkit-border-radius: 2px; }
+.wcte-modal { border: 1px solid #999; background-color: #fafafa; padding: 5px; -moz-border-radius: 2px; -webkit-border-radius: 2px; z-index: 2; }
 .wcte-linkModal { position: absolute; top: 25px; }
 .wcte-linkModal input { margin: 0px 5px; }
 .wcte-linkModal button { padding: 2px 5px; background-color: #eee; border: 1px solid #999; -moz-border-radius: 2px; -webkit-border-radius: 2px; }
 .wcte-linkModal a { cursor: pointer; margin-left: 5px; }
-.wcte-linkOverlay { position: absolute; }
+.wcte-linkOverlay, .wcte-spellCheckModal { position: absolute; }
+.wcte-spellCheckModal { max-height: 100px; width: 200px; overflow-y: auto; }

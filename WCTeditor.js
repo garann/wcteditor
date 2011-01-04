@@ -16,7 +16,7 @@
 				showStripHtml: false,
 				showSpellCheck: false,
 				userClasses: [],
-				defaultText: "<br/>",
+				defaultText: "&nbsp;",
 				showCharCount: false,
 				charCountTmpl: "Characters remaining: {{html chars}}",
 				showLinkOverlays: true,
@@ -34,6 +34,7 @@
 		});
 		$.template('linkModalTemplate','<div class="wcte-linkModal wcte-modal"><label>URL:<input type="text" value="${href}"/></label><button>OK</button><a>Cancel</a></div>');
 		$.template('linkOverlayTemplate','<div class="wcte-linkOverlay wcte-modal" contenteditable="false">${url}<br/><a href="${url}" target="_blank">Open link</a></div>');
+		$.template('spellCheckTemplate','<div class="wcte-spellCheckModal wcte-modal" contenteditable="false">{{each suggestions}}<a class="wcte-sug">${$value}</a><br/>{{/each}}<a>Ignore</a></div>');
 		$.get(that.pathToPlugin + "tmpl/editor-tmpl.txt", function(r) {
 			$.template("wcteditorTemplate",r);
 			// render editor
@@ -136,14 +137,41 @@
 		};
 
 		that.spellcheck = function() {
-			// get text
-			// receive misspellings [] of {originalWord:string,suggestions:[]} - same word misspelled 2x gets 2 entries
-			// display spellcheck banner until misspellings.length == 0, then notify and fade out
-			// find misspelled words in editor.html()
-			// wrap misspellings in <span class="misspelled">
-			// click on .misspelled shows list of suggestions + "Ignore"
-			// click anywhere in list removes misspellings entry, span.misspelled
-			// check misspellings length, if 0 hide
+			if (document.body.createTextRange) {
+				// get text
+				var vals = that.editor.text(),
+					btn = that.container.find(".wcte-btn-spell");
+				// receive misspellings [] of {originalWord:string,suggestions:[]} - same word misspelled 2x gets 2 entries?
+				$.post(that.spellcheckUrl,$.trim(vals),function(d) {
+					if (d.length) btn.addClass("errors");
+					// find misspelled words in editor.html()
+					$.each(d,function(i) {
+						var r = document.body.createTextRange();
+						r.moveToElementText(that.editor[0]);
+						r.findText(this.originalWord);
+						r.select();
+						// wrap misspellings in <font> - yes, really
+						document.execCommand("foreColor", null, "#ff0000");
+						that.editor.find("font").last().data("suggestions",this.suggestions);
+					});
+				});
+				// click on .misspelled shows list of suggestions + "Ignore"
+				that.editor
+				.delegate("font","click",function() {
+					var t = $(this), pos = t.position();
+					that.editor.after($.tmpl("spellCheckTemplate",t.data()));
+					var m = that.editor.siblings("div.wcte-modal");
+					m.css("left",pos.left)
+						.css("top",pos.top + 20)
+						.find("a").click(function() {
+							var sug = $(this);
+							t.replaceWith(sug.hasClass("wcte-sug") ? sug.text() : t.text());
+							sug.parent().remove();
+							if (!that.editor.find("font").length) btn.removeClass("errors");
+							that.updateTextarea();
+						});
+				})
+			}
 		};
 
 		return that;
@@ -157,6 +185,8 @@
 			maxLength: that.textarea.attr("maxlength"),
 			chars: '<span class="chars">' + that.maxLength + '</span>'
 		});
+		// only show spellcheck for IE, since it's only gonna work for IE and only IE doesn't do it automatically
+		that.showSpellCheck = that.showSpellCheck && document.body.createTextRange;
 		that.textarea.after($.tmpl("wcteditorTemplate",that)).hide();
 		that.container = that.textarea.next("div.wcte-container");
 		that.editor = that.container.find("div.wcte-editor");
@@ -221,7 +251,7 @@
 		that.buttons["a"] = $("button.wcte-btn-link",that.container);
 
 		that.editor.bind("keyup click",function(e) {
-			$(this).find("div.wcte-modal").remove();
+				$(this).parent().find("div.wcte-modal").remove();
 			that.updateButtons().updateTextarea();
 		})
 		.bind("paste",function(e) {
