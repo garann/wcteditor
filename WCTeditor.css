@@ -4,6 +4,7 @@
 .wcte-buttons button:hover, .wcte-buttons button.active, .wcte-buttons button.errors { background-color: #ddd; -moz-box-shadow: 0px -1px 1px #aaa; -webkit-box-shadow: 0px -1px 1px #aaa; margin-top: 1px; margin-bottom: 1px; }
 .wcte-editor { width: 500px; height: 200px; background-color: #fff; padding: 5px; border: 1px solid #999; -moz-border-radius: 2px; -webkit-border-radius: 2px; overflow-y: scroll;  }
 .wcte-editor font { cursor: pointer; }
+.wcte-placeholder { color: #999; }
 .wcte-charCount { width: 500px; text-align: right; padding-top: 5px; font-size: 10px; }
 .wcte-charCount .tooLong { color: #f00; }
 .wcte-modal { border: 1px solid #999; background-color: #fafafa; padding: 5px; -moz-border-radius: 2px; -webkit-border-radius: 2px; z-index: 2; }

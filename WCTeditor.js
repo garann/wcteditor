@@ -16,14 +16,15 @@
 				showStripHtml: false,
 				showSpellCheck: false,
 				userClasses: [],
-				defaultText: "&nbsp;",
+				defaultText: null,
 				showCharCount: false,
 				charCountTmpl: "Characters remaining: {{html chars}}",
 				showLinkOverlays: true,
 				maxLength: 0,
 				spellcheckUrl: "",
 				pathToPlugin:"",
-				theme: ""
+				theme: "",
+				placeholderText: ""
 			},
 			that = $.extend(true,{},defaults,config);
 		that.textarea = this;
@@ -35,6 +36,7 @@
 		$.template('linkModalTemplate','<div class="wcte-linkModal wcte-modal"><label>URL:<input type="text" value="${href}"/></label><button>OK</button><a>Cancel</a></div>');
 		$.template('linkOverlayTemplate','<div class="wcte-linkOverlay wcte-modal" contenteditable="false">${url}<br/><a href="${url}" target="_blank">Open link</a></div>');
 		$.template('spellCheckTemplate','<div class="wcte-spellCheckModal wcte-modal" contenteditable="false">{{each suggestions}}<a class="wcte-sug">${$value}</a><br/>{{/each}}<a>Ignore</a></div>');
+		$.template('contentsTemplate','<span class="wcte-placeholder">${placeholderText}</span> ');
 		$.get(that.pathToPlugin + "tmpl/editor-tmpl.txt", function(r) {
 			$.template("wcteditorTemplate",r);
 			// render editor
@@ -50,6 +52,8 @@
 
 		// mirror changes in original textarea
 		that.updateTextarea = function() {
+			var p = that.editor.find("span.wcte-placeholder");
+			if (p[0] && that.editor.text().length) p.remove(); 
 			var current = that.editor.html().replace(/&nbsp;/g," ");
 			that.textarea.val(current);
 			if (that.showCharCount) that.updateCharCount();
@@ -142,7 +146,7 @@
 				var vals = that.editor.text(),
 					btn = that.container.find(".wcte-btn-spell");
 				// receive misspellings [] of {originalWord:string,suggestions:[]} - same word misspelled 2x gets 2 entries?
-				$.post(that.spellcheckUrl,$.trim(vals),function(d) {
+				$.post(that.spellcheckUrl,{s:$.trim(vals)},function(d) {
 					if (d.length) btn.addClass("errors");
 					// find misspelled words in editor.html()
 					$.each(d,function(i) {
@@ -181,10 +185,13 @@
 		// check to make sure contenteditable works - otherwise ABORT! ABORT! ABORT!
 		if (supportsContentEditable()) {	
 		that = $.extend(true,that,{
-			defaultText: that.textarea.val() + "&nbsp;",
 			maxLength: that.textarea.attr("maxlength"),
 			chars: '<span class="chars">' + that.maxLength + '</span>'
 		});
+		that.defaultText = that.defaultText || that.textarea.val();
+		if (that.defaultText.length) {
+			$.template('contentsTemplate','{{html defaultText}} ');
+		}
 		// only show spellcheck for IE, since it's only gonna work for IE and only IE doesn't do it automatically
 		that.showSpellCheck = that.showSpellCheck && document.body.createTextRange;
 		that.textarea.after($.tmpl("wcteditorTemplate",that)).hide();
@@ -278,6 +285,10 @@
 		.focus(function(){
 			if (that.editor.text().length > 0)
 			setSelection(getRange());
+		})
+		.blur(function(){
+			if (that.editor.text().length < 1 && !that.editor.find("span.wcte-placeholder")[0])
+				that.editor.prepend($.tmpl("contentsTemplate",that));
 		})
 		.delegate("a","click",function(e) {
 			e.stopPropagation();
