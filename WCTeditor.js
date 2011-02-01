@@ -18,31 +18,47 @@
 				userClasses: [],
 				defaultText: null,
 				showCharCount: false,
-				charCountTmpl: "Characters remaining: {{html chars}}",
+				charCountTmpl: "Characters remaining: ${chars}",
 				showLinkOverlays: true,
 				maxLength: 0,
 				spellcheckUrl: "",
 				pathToPlugin:"",
 				theme: "",
-				placeholderText: ""
+				placeholderText: "",
+				onLoad: null
 			},
 			that = $.extend(true,{},defaults,config);
 		that.textarea = this;
 
-		// load editor templates and basic CSS
+		// load basic CSS
 		$.get((that.theme.length?that.pathToPlugin+"themes/"+that.theme+"/":that.pathToPlugin) + "WCTeditor.css", function(r) {
 			$("head").append('<style media="all">' + r + '</style>');
 		});
-		$.template('linkModalTemplate','<div class="wcte-linkModal wcte-modal"><label>URL:<input type="text" value="${href}"/></label><button>OK</button><a>Cancel</a></div>');
-		$.template('linkOverlayTemplate','<div class="wcte-linkOverlay wcte-modal" contenteditable="false">${url}<br/><a href="${url}" target="_blank">Open link</a></div>');
-		$.template('spellCheckTemplate','<div class="wcte-spellCheckModal wcte-modal" contenteditable="false">{{each suggestions}}<a class="wcte-sug">${$value}</a><br/>{{/each}}<a>Ignore</a></div>');
-		$.template('contentsTemplate','<span class="wcte-placeholder">${placeholderText}</span> ');
-		$.get(that.pathToPlugin + "tmpl/editor-tmpl.txt", function(r) {
-			$.template("wcteditorTemplate",r);
-			// render editor
-			that = init(that);
-		});			
-		$.template("charCountTemplate",that.charCountTmpl);	
+		// load editor templates
+		that.templates = {};
+		
+		that.templates['linkModal'] = '<div class="wcte-linkModal wcte-modal"><label>URL:<input type="text" value="${href}"/></label><button>OK</button><a>Cancel</a></div>';
+		that.templates['linkOverlay'] = '<div class="wcte-linkOverlay wcte-modal" contenteditable="false">${url}<br/><a href="${url}" target="_blank">Open link</a></div>';
+		that.templates['spellCheck'] = '<div class="wcte-spellCheckModal wcte-modal" contenteditable="false">${suggestions}<a>Ignore</a></div>';
+		that.templates['spellCheckSuggestion'] = '<a class="wcte-sug">${value}</a><br/>';
+		that.templates['contents'] = '<span class="wcte-placeholder">${placeholderText}</span> ';
+		that.templates['charCount'] = that.charCountTmpl;
+				
+		var sb = '<div class="wcte-container ' + that.userClasses.join(" ") + '">';
+			sb+= 	'<div class="wcte-buttons">';
+			sb+= 	that.showBold ? '<button class="wcte-btn-bold" title="make text bold">b</button>' : '';
+			sb+= 	that.showItalic ? '<button class="wcte-btn-italic" title="make text italic">i</button>' : '';
+			sb+= 	that.showUnderline ? '<button class="wcte-btn-underline" title="underline text">u</button>' : '';
+			sb+= 	that.showNumList ? '<button class="wcte-btn-list-num" title="create numbered list">ol</button>' : '';
+			sb+= 	that.showBullList ? '<button class="wcte-btn-list-bull" title="create bulleted list">ul</button>' : '';
+			sb+= 	that.showLink ? '<button class="wcte-btn-link" title="link selected text">a</button><button class="wcte-btn-unlink" title="unlink selected text">/a</button>' : '';
+			sb+= 	that.showStripHtml ? '<button class="wcte-btn-strip" title="remove markup">strip html</button>' : '';
+			sb+= 	that.showSpellCheck ? '<button class="wcte-btn-spell" title="spell-check">spell-check</button>' : '';
+			sb+= 	'</div>';
+			sb+= 	'<div class="wcte-editor" contenteditable="true"></div>';
+			sb+= '</div>';
+
+		that.templates['wcteditor'] = sb;
 
 		// do basic designMode commands
 		that.applyFormatting = function(type) {
@@ -103,7 +119,7 @@
 			var href = (linkText.startContainer ? 
 				$(linkText.startContainer).closest("a") :
 				$(linkText.parentElement()) || $(linkText.parentElement()).closest("a")).attr("href");
-			that.container.append($.tmpl("linkModalTemplate",{href: href}));
+			that.container.append($(that.templates.linkModal.replace('${href}', href || '')));
 			var modal = that.container.find("div.wcte-linkModal");
 			modal.css("left",leftPosition);
 			modal.find("button").click(function(e) {
@@ -162,8 +178,15 @@
 				// click on .misspelled shows list of suggestions + "Ignore"
 				that.editor
 				.delegate("font","click",function() {
-					var t = $(this), pos = t.position();
-					that.editor.after($.tmpl("spellCheckTemplate",t.data()));
+					var t = $(this), pos = t.position(), 
+						suggestions = t.data('suggestions'),
+						suggestionsHTML = '';
+					$.each(suggestions, function(i, value) {
+						if (value) {
+							suggestionsHTML += that.templates.spellCheckSuggestion.replace('${value}', value);
+						}
+					});
+					that.editor.after($(that.templates.spellCheck.replace('${suggestions}', suggestionsHTML)));
 					var m = that.editor.siblings("div.wcte-modal");
 					m.css("left",pos.left)
 						.css("top",pos.top + 20)
@@ -177,7 +200,9 @@
 				})
 			}
 		};
-
+		
+		// render editor
+		that = init(that);
 		return that;
 	};
 
@@ -189,15 +214,16 @@
 			chars: '<span class="chars">' + that.maxLength + '</span>'
 		});
 		that.defaultText = that.defaultText || that.textarea.val();
-		if (that.defaultText.length) {
-			$.template('contentsTemplate','{{html defaultText}} ');
-		}
 		// only show spellcheck for IE, since it's only gonna work for IE and only IE doesn't do it automatically
 		that.showSpellCheck = that.showSpellCheck && document.body.createTextRange;
-		that.textarea.after($.tmpl("wcteditorTemplate",that)).hide();
+		that.textarea.after($(that.templates.wcteditor)).hide();
 		that.container = that.textarea.next("div.wcte-container");
 		that.editor = that.container.find("div.wcte-editor");
-		if (that.showCharCount) that.charCount = that.container.find("div.wcte-charCount span.chars");
+		that.editor.html(that.defaultText);
+		if (that.showCharCount) {
+			that.container.append('<div class="wcte-charCount">' + that.templates['charCount'].replace('${chars}', that.chars) + '</div>');
+			that.charCount = that.container.find("div.wcte-charCount span.chars");
+		}
 
 		// setup button actions
 		that.container
@@ -288,14 +314,17 @@
 		})
 		.blur(function(){
 			if (that.editor.text().length < 1 && !that.editor.find("span.wcte-placeholder")[0])
-				that.editor.prepend($.tmpl("contentsTemplate",that));
+				that.editor.prepend($(that.templates.contentsTemplate.replace('${placeholderText}',that.placeholderText)));
 		})
 		.delegate("a","click",function(e) {
 			e.stopPropagation();
-			var t = $(this), pos = t.position();
-			t.after($.tmpl("linkOverlayTemplate",{url:t.attr("href")}));
+			var t = $(this), pos = t.position(), href = t.attr("href");
+			t.after($(that.templates.linkOverlay.replace('${url}', href || '')));;
 			t.siblings("div.wcte-modal").css("left",pos.left).css("top",pos.top + 20);
 		});
+		if (that.onLoad) {
+			that.onLoad(that);
+		}
 		}
 		return that;
 	}
