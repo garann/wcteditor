@@ -16,11 +16,13 @@ Tested so far and works ok in:
 + FF 3.6
 + Chrome 8
 + Safari 5
++ Opera 11
 + IE 7+
++ __NOT__ mobile WebKit
 
 ## Usage ##
 
-Apply the plugin to a textarea with some options:
+Requires jQuery and the jQuery templates plugin (there's also a [version with no template dependency](https://github.com/cbosco/wcteditor/)). Get those and then apply the WCTeditor plugin to a textarea with some options:
 
 	$("#myTextArea").WCTeditor({
 		showNumList: true,
@@ -66,7 +68,7 @@ Whether or not you'd like the spellcheck button to be shown.
 
 ### userClasses ###
 array of strings:
-CSS classes you'd like to have applied to the div that wraps the editor.
+CSS class(es) you'd like to have applied to the div that wraps the editor.
 
 ### defaultText ###
 string:
@@ -92,6 +94,14 @@ Path to the spellchecking service you'd like to call.
 string:
 Location of this plugin (i.e., location of WCTeditor.js) relative to the file it's being implemented in.
 
+### theme ###
+string:
+A directory name. The plugin will look for a stylesheet at [pathToPlugin]/themes/[theme]/WCTeditor.css
+
+### placeholderText ###
+string:
+Helpful text that will display within the editor while it is empty, if defaultText is not set and the textarea is empty.
+
 ## Functions ##
 
 You may want to override some of these to change the default functionality.
@@ -116,5 +126,12 @@ Displays the interface to set a URL and wires up the button in that interface to
 ### stripHTML ###
 Removes all markup except paragraphs and line breaks.
 
+### stripHTMLComments ###
+Removes HTML comments from content pasted into the editor.
+
 ### spellcheck ###
-_Coming soon!_
+IE-only implementation, because other browsers include spellcheck. Sends the text within the editor to the service specified by the spellcheckUrl property, and expects an array of results in the format:
+
+	{originalWord: string, suggestions: []}
+
+Wraps each misspelling in a font tag, and wires up an event handler to display a small window with the suggestions and an option to ignore the misspelling. Clicking a suggestion replaces the misspelling and remove the font tag, clicking ignore simply removes the font tag.
