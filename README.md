@@ -9,7 +9,7 @@ A super-simple text editor for modern browsers. Supports:
 + bulleted lists
 + links
 + stripping html (except line breaks/paragraphs)
-+ spell-check via callback (_coming soon!_)
++ spell-check via callback
 
 Tested so far and works ok in:
 
@@ -134,4 +134,4 @@ IE-only implementation, because other browsers include spellcheck. Sends the tex
 
 	{originalWord: string, suggestions: []}
 
-Wraps each misspelling in a font tag, and wires up an event handler to display a small window with the suggestions and an option to ignore the misspelling. Clicking a suggestion replaces the misspelling and remove the font tag, clicking ignore simply removes the font tag.
+Wraps each misspelling in a font tag, and wires up an event handler to display a small window with the suggestions and an option to ignore the misspelling. Clicking a suggestion replaces the misspelling and removes the font tag, clicking ignore simply removes the font tag.
