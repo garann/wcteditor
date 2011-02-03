@@ -40,7 +40,7 @@
 		$.get(that.pathToPlugin + "tmpl/editor-tmpl.txt", function(r) {
 			$.template("wcteditorTemplate",r);
 			// render editor
-			that = init(that);
+			that = wcte.init(that);
 		});			
 		$.template("charCountTemplate",that.charCountTmpl);	
 
@@ -72,7 +72,7 @@
 		that.updateButtons = function() {
 			if (that.editor.text().length < 1) return that;
 			$("div.wcte-buttons button",that.container).removeClass("active");
-			var range = getRange();
+			var range = that.getRange();
 			if (range.startContainer) {
 				parents = $(range.startContainer).parentsUntil("div.wcte-editor");
 			} else {
@@ -99,7 +99,7 @@
 				
 		// show interface to add a URL to current selection
 		that.setLink = function(leftPosition) {
-			var linkText = getRange();
+			var linkText = that.getRange();
 			var href = (linkText.startContainer ? 
 				$(linkText.startContainer).closest("a") :
 				$(linkText.parentElement()) || $(linkText.parentElement()).closest("a")).attr("href");
@@ -109,7 +109,7 @@
 			modal.find("button").click(function(e) {
 				e.preventDefault();
 				var link = modal.find("input").val();
-				setSelection(linkText);
+				that.setSelection(linkText);
 				document.execCommand("createLink",null,(link.indexOf("//") < 0 ? "http://" + link : link));
 				modal.remove();
 				that.updateTextarea();
@@ -181,9 +181,11 @@
 		return that;
 	};
 
-	function init(that) {
+	var wcte = {};	// utility functions
+	wcte.init = function(that) {
 		// check to make sure contenteditable works - otherwise ABORT! ABORT! ABORT!
-		if (supportsContentEditable()) {	
+		if (wcte.supportsContentEditable()) {	
+		that = $.extend(true,{},that,wcte);
 		that = $.extend(true,that,{
 			maxLength: that.textarea.attr("maxlength"),
 			chars: '<span class="chars">' + that.maxLength + '</span>'
@@ -284,7 +286,7 @@
 		})
 		.focus(function(){
 			if (that.editor.text().length > 0)
-			setSelection(getRange());
+			that.setSelection(that.getRange());
 		})
 		.blur(function(){
 			if (that.editor.text().length < 1 && !that.editor.find("span.wcte-placeholder")[0])
@@ -296,15 +298,17 @@
 			t.after($.tmpl("linkOverlayTemplate",{url:t.attr("href")}));
 			t.siblings("div.wcte-modal").css("left",pos.left).css("top",pos.top + 20);
 		});
+		// fire custom event when ready
+		//that.trigger('wcte.ready');
 		}
 		return that;
 	}
 
-	function getRange() {
+	wcte.getRange = function() {
 		return window.getSelection ? window.getSelection().getRangeAt(0) : document.selection.createRange();
 	}
 
-	function setSelection(range) {
+	wcte.setSelection = function(range) {
 		if (range.select) {
 			range.select();
 		} else {
@@ -314,7 +318,7 @@
 		}
 	}
 
-	function supportsContentEditable() {
+	wcte.supportsContentEditable = function() {
 		if (!document.execCommand) 
 			return false;
 		var uagent = navigator.userAgent.toLowerCase();
