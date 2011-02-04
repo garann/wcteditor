@@ -26,159 +26,165 @@
 				theme: "",
 				placeholderText: ""
 			},
-			that = $.extend(true,{},defaults,config);
-		that.textarea = this;
+			options = $.extend(true,{},defaults,config);
+			editors = [];
 
 		// load editor templates and basic CSS
-		$.get((that.theme.length?that.pathToPlugin+"themes/"+that.theme+"/":that.pathToPlugin) + "WCTeditor.css", function(r) {
+		$.get((options.theme.length?options.pathToPlugin+"themes/"+options.theme+"/":options.pathToPlugin) + "WCTeditor.css", function(r) {
 			$("head").append('<style media="all">' + r + '</style>');
 		});
 		$.template('linkModalTemplate','<div class="wcte-linkModal wcte-modal"><label>URL:<input type="text" value="${href}"/></label><button>OK</button><a>Cancel</a></div>');
 		$.template('linkOverlayTemplate','<div class="wcte-linkOverlay wcte-modal" contenteditable="false">${url}<br/><a href="${url}" target="_blank">Open link</a></div>');
 		$.template('spellCheckTemplate','<div class="wcte-spellCheckModal wcte-modal" contenteditable="false">{{each suggestions}}<a class="wcte-sug">${$value}</a><br/>{{/each}}<a>Ignore</a></div>');
 		$.template('contentsTemplate','<span class="wcte-placeholder">${placeholderText}</span> ');
-		$.get(that.pathToPlugin + "tmpl/editor-tmpl.txt", function(r) {
-			$.template("wcteditorTemplate",r);
-			// render editor
-			that = wcte.init(that);
-		});			
-		$.template("charCountTemplate",that.charCountTmpl);	
-
-		// do basic designMode commands
-		that.applyFormatting = function(type) {
-			document.execCommand(type, null, null);
-			that.updateTextarea();
-		};
-
-		// mirror changes in original textarea
-		that.updateTextarea = function() {
-			var p = that.editor.find("span.wcte-placeholder");
-			if (p[0] && that.editor.text().length) p.remove(); 
-			var current = that.editor.html().replace(/&nbsp;/g," ");
-			that.textarea.val(current);
-			if (that.showCharCount) that.updateCharCount();
-			return that;
-		};
+		$.template("charCountTemplate",options.charCountTmpl);	
 		
-		// update character counter
-		that.updateCharCount = function() {
-			var l = that.maxLength - that.editor.text().length;
-			that.charCount.removeClass("tooLong");
-			that.charCount.html(l);
-			if (l < 0) that.charCount.addClass("tooLong");
-		};
-
-		// show correct formatting button states for cursor position
-		that.updateButtons = function() {
-			if (that.editor.text().length < 1) return that;
-			$("div.wcte-buttons button",that.container).removeClass("active");
-			var range = that.getRange();
-			if (range.startContainer) {
-				parents = $(range.startContainer).parentsUntil("div.wcte-editor");
-			} else {
-				parents = $(range.parentElement()).parentsUntil("div.wcte-editor").andSelf();
-			}
-			parents.each(function() {
-				var tag = this.tagName.toLowerCase(),
-					btn = that.buttons[tag];
-				if (btn != null) {
-					btn.addClass("active");
-				} else if (tag == "strong") {
-					that.buttons["b"].addClass("active");
-				} else if (tag == "em") {
-					that.buttons["i"].addClass("active");
-				} else if (tag == "span") {
-					var t = $(this);
-					if (t.css("font-weight") == "bold") that.buttons["b"].addClass("active");
-					if (t.css("font-style") == "italic") that.buttons["i"].addClass("active");
-					if (t.css("text-decoration") == "underline") that.buttons["u"].addClass("active");
-				}
+		this.each(function(i, el) {
+			var that = $.extend(true, {}, options);
+			that.textarea = $(el);
+			$.get(that.pathToPlugin + "tmpl/editor-tmpl.txt", function(r) {
+				$.template("wcteditorTemplate",r);
+				// render editor
+				that = wcte.init(that);
 			});
-			return that;	
-		};
-				
-		// show interface to add a URL to current selection
-		that.setLink = function(leftPosition) {
-			var linkText = that.getRange();
-			var href = (linkText.startContainer ? 
-				$(linkText.startContainer).closest("a") :
-				$(linkText.parentElement()) || $(linkText.parentElement()).closest("a")).attr("href");
-			that.container.append($.tmpl("linkModalTemplate",{href: href}));
-			var modal = that.container.find("div.wcte-linkModal");
-			modal.css("left",leftPosition);
-			modal.find("button").click(function(e) {
-				e.preventDefault();
-				var link = modal.find("input").val();
-				that.setSelection(linkText);
-				document.execCommand("createLink",null,(link.indexOf("//") < 0 ? "http://" + link : link));
-				modal.remove();
+			
+			// do basic designMode commands
+			that.applyFormatting = function(type) {
+				document.execCommand(type, null, null);
 				that.updateTextarea();
-			});	
-			modal.find("a").click(function(e) {
-				e.preventDefault();
-				modal.remove();
-			});
-			return that;				
-		};
+			};
 
-		// remove all markup except paragraphs and line breaks
-		that.stripHTML = function(html) {
-			var strippedContent = html.replace(/<!(?:--[\s\S]*?--\s*)?>\s*/g,"");						// comments.. does this even work? innerhtml seems to dump html comments
-			strippedContent = strippedContent.replace(/\r\n|\r|\n/g,"<br/>");							// non-html line breaks
-			strippedContent = strippedContent.replace(/\u00A0\u00A0/g," ");								// tons of spaces
-			strippedContent = strippedContent.replace(/(\<)\/?(?!br(\s|\/|\>))(?!(\/)?p)(.*?)\>/gi,"");	// tags that are not <br> or <p>
-			strippedContent = strippedContent.replace(/<p(?:[\s\S]*?>)/gi,"<p>");						// attributes in <p> tags
-			strippedContent = strippedContent.replace(/<p>(?:\s*(\&nbsp;)*\s*)?<\/p>/gi,"");			// empty paragraphs
-			return strippedContent;	
-		};
+			// mirror changes in original textarea
+			that.updateTextarea = function() {
+				var p = that.editor.find("span.wcte-placeholder");
+				if (p[0] && that.editor.text().length) p.remove(); 
+				var current = that.editor.html().replace(/&nbsp;/g," ");
+				that.textarea.val(current);
+				if (that.showCharCount) that.updateCharCount();
+				return that;
+			};
+			
+			// update character counter
+			that.updateCharCount = function() {
+				var l = that.maxLength - that.editor.text().length;
+				that.charCount.removeClass("tooLong");
+				that.charCount.html(l);
+				if (l < 0) that.charCount.addClass("tooLong");
+			};
 
-		// remove html comments from textarea b/c innerHTML of contenteditable element doesn't include them
-		that.stripHTMLComments = function() {
-			var html = that.textarea.val(),
-				strippedContent = html.replace(/<!(?:--[\s\S]*?--\s*)?>\s*/g,"");
-			that.textarea.val(strippedContent);
-			that.editor.html(strippedContent);
-		};
-
-		that.spellcheck = function() {
-			if (document.body.createTextRange) {
-				// get text
-				var vals = that.editor.text(),
-					btn = that.container.find(".wcte-btn-spell");
-				// receive misspellings [] of {originalWord:string,suggestions:[]} - same word misspelled 2x gets 2 entries?
-				$.post(that.spellcheckUrl,{s:$.trim(vals)},function(d) {
-					if (d.length) btn.addClass("errors");
-					// find misspelled words in editor.html()
-					$.each(d,function(i) {
-						var r = document.body.createTextRange();
-						r.moveToElementText(that.editor[0]);
-						r.findText(this.originalWord);
-						r.select();
-						// wrap misspellings in <font> - yes, really
-						document.execCommand("foreColor", null, "#ff0000");
-						that.editor.find("font").last().data("suggestions",this.suggestions);
-					});
+			// show correct formatting button states for cursor position
+			that.updateButtons = function() {
+				if (that.editor.text().length < 1) return that;
+				$("div.wcte-buttons button",that.container).removeClass("active");
+				var range = that.getRange();
+				if (range.startContainer) {
+					parents = $(range.startContainer).parentsUntil("div.wcte-editor");
+				} else {
+					parents = $(range.parentElement()).parentsUntil("div.wcte-editor").andSelf();
+				}
+				parents.each(function() {
+					var tag = this.tagName.toLowerCase(),
+						btn = that.buttons[tag];
+					if (btn != null) {
+						btn.addClass("active");
+					} else if (tag == "strong") {
+						that.buttons["b"].addClass("active");
+					} else if (tag == "em") {
+						that.buttons["i"].addClass("active");
+					} else if (tag == "span") {
+						var t = $(this);
+						if (t.css("font-weight") == "bold") that.buttons["b"].addClass("active");
+						if (t.css("font-style") == "italic") that.buttons["i"].addClass("active");
+						if (t.css("text-decoration") == "underline") that.buttons["u"].addClass("active");
+					}
 				});
-				// click on .misspelled shows list of suggestions + "Ignore"
-				that.editor
-				.delegate("font","click",function() {
-					var t = $(this), pos = t.position();
-					that.editor.after($.tmpl("spellCheckTemplate",t.data()));
-					var m = that.editor.siblings("div.wcte-modal");
-					m.css("left",pos.left)
-						.css("top",pos.top + 20)
-						.find("a").click(function() {
-							var sug = $(this);
-							t.replaceWith(sug.hasClass("wcte-sug") ? sug.text() : t.text());
-							sug.parent().remove();
-							if (!that.editor.find("font").length) btn.removeClass("errors");
-							that.updateTextarea();
-						});
-				})
-			}
-		};
+				return that;	
+			};
+					
+			// show interface to add a URL to current selection
+			that.setLink = function(leftPosition) {
+				var linkText = that.getRange();
+				var href = (linkText.startContainer ? 
+					$(linkText.startContainer).closest("a") :
+					$(linkText.parentElement()) || $(linkText.parentElement()).closest("a")).attr("href");
+				that.container.append($.tmpl("linkModalTemplate",{href: href}));
+				var modal = that.container.find("div.wcte-linkModal");
+				modal.css("left",leftPosition);
+				modal.find("button").click(function(e) {
+					e.preventDefault();
+					var link = modal.find("input").val();
+					that.setSelection(linkText);
+					document.execCommand("createLink",null,(link.indexOf("//") < 0 ? "http://" + link : link));
+					modal.remove();
+					that.updateTextarea();
+				});	
+				modal.find("a").click(function(e) {
+					e.preventDefault();
+					modal.remove();
+				});
+				return that;				
+			};
 
-		return that;
+			// remove all markup except paragraphs and line breaks
+			that.stripHTML = function(html) {
+				var strippedContent = html.replace(/<!(?:--[\s\S]*?--\s*)?>\s*/g,"");						// comments.. does this even work? innerhtml seems to dump html comments
+				strippedContent = strippedContent.replace(/\r\n|\r|\n/g,"<br/>");							// non-html line breaks
+				strippedContent = strippedContent.replace(/\u00A0\u00A0/g," ");								// tons of spaces
+				strippedContent = strippedContent.replace(/(\<)\/?(?!br(\s|\/|\>))(?!(\/)?p)(.*?)\>/gi,"");	// tags that are not <br> or <p>
+				strippedContent = strippedContent.replace(/<p(?:[\s\S]*?>)/gi,"<p>");						// attributes in <p> tags
+				strippedContent = strippedContent.replace(/<p>(?:\s*(\&nbsp;)*\s*)?<\/p>/gi,"");			// empty paragraphs
+				return strippedContent;	
+			};
+
+			// remove html comments from textarea b/c innerHTML of contenteditable element doesn't include them
+			that.stripHTMLComments = function() {
+				var html = that.textarea.val(),
+					strippedContent = html.replace(/<!(?:--[\s\S]*?--\s*)?>\s*/g,"");
+				that.textarea.val(strippedContent);
+				that.editor.html(strippedContent);
+			};
+
+			that.spellcheck = function() {
+				if (document.body.createTextRange) {
+					// get text
+					var vals = that.editor.text(),
+						btn = that.container.find(".wcte-btn-spell");
+					// receive misspellings [] of {originalWord:string,suggestions:[]} - same word misspelled 2x gets 2 entries?
+					$.post(that.spellcheckUrl,{s:$.trim(vals)},function(d) {
+						if (d.length) btn.addClass("errors");
+						// find misspelled words in editor.html()
+						$.each(d,function(i) {
+							var r = document.body.createTextRange();
+							r.moveToElementText(that.editor[0]);
+							r.findText(this.originalWord);
+							r.select();
+							// wrap misspellings in <font> - yes, really
+							document.execCommand("foreColor", null, "#ff0000");
+							that.editor.find("font").last().data("suggestions",this.suggestions);
+						});
+					});
+					// click on .misspelled shows list of suggestions + "Ignore"
+					that.editor
+					.delegate("font","click",function() {
+						var t = $(this), pos = t.position();
+						that.editor.after($.tmpl("spellCheckTemplate",t.data()));
+						var m = that.editor.siblings("div.wcte-modal");
+						m.css("left",pos.left)
+							.css("top",pos.top + 20)
+							.find("a").click(function() {
+								var sug = $(this);
+								t.replaceWith(sug.hasClass("wcte-sug") ? sug.text() : t.text());
+								sug.parent().remove();
+								if (!that.editor.find("font").length) btn.removeClass("errors");
+								that.updateTextarea();
+							});
+					})
+				}
+			};
+
+			editors.push(that);
+		});
+		return editors;
 	};
 
 	var wcte = {};	// utility functions
