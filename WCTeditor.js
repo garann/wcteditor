@@ -26,7 +26,7 @@
 				theme: "",
 				placeholderText: ""
 			},
-			options = $.extend(true,{},defaults,config);
+			options = $.extend(true,{},defaults,config),
 			editors = [];
 
 		// load editor templates and basic CSS
