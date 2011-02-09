@@ -28,6 +28,8 @@
 
 	$.fn.WCTeditor = function(config) {
 		
+		if (this[0] == null) return;
+		
 		tmplLoaded || _loadTemplates(config.pathToPlugin);
 		
 		if (this[1]) {
