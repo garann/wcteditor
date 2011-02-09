@@ -3,7 +3,7 @@
 <head>	
 	<meta charset="utf-8" />
 	<title>WCTeditor example</title>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js"></script>
 	<script src="http://ajax.microsoft.com/ajax/jquery.templates/beta1/jquery.tmpl.min.js"></script>
 	<style>
 		body { background-color: #f6f6f6; padding: 100px; font-size: 12px; font-family: Georgia, sans-serif; color: #666; }
@@ -13,15 +13,18 @@
 </head>
 <body>
 
-	<h1>WCTeditor example</h1>
+	<h1>WCTeditor example 1</h1>
 	<textarea id="myTextArea" rows="3" cols="40" maxlength="1000"></textarea>
+
+	<h1>WCTeditor example 2</h1>
+	<textarea id="otherTextArea" rows="3" cols="40" maxlength="500">This one has stuff in it..</textarea>
 
 
 	<script src="../WCTeditor.js"></script>
 	<script>
 		$(document).ready(function() {
-			$("#myTextArea").WCTeditor({
-				defaultText:"this is <i>only</i> a test",
+			$("textarea").WCTeditor({
+				placeholderText:"PUT WORDS HERE",
 				showCharCount:true,
 				pathToPlugin:"../"
 			});
