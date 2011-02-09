@@ -102,36 +102,94 @@ A directory name. The plugin will look for a stylesheet at [pathToPlugin]/themes
 string:
 Helpful text that will display within the editor while it is empty, if defaultText is not set and the textarea is empty.
 
+### textarea ###
+element:
+A reference to the textarea the editor is replacing.
+
 ## Functions ##
 
 You may want to override some of these to change the default functionality.
 
+### init ###
+args: that (the editor object)
+
+Renders the editor and sets up its event handlers.
+
+### remove ###
+args: that (the editor object)
+
+Removes the editor and shows the textarea again.
+
+### getRange ###
+Utility function: gets the current selection.
+
+### setSelection ###
+args: range (the range to select)
+
+Utility function: sets the current selection.
+
+### supportsContentEditable ###
+Utility function: uses a combo of feature detection and UA-sniffing to determine whether the editor will work.
+
 ### applyFormatting ###
+args: that (the editor object)
+	type (the designMode command)
+
 Applies the basic designMode commands.
 
 ### updateTextarea ###
+args: that (the editor object)
+
 Pushes changes to the editor to your textarea, then calls updateCharCount if it's enabled.
 
 ### updateCharCount ###
+args: that (the editor object)
+
 Updates the character count. Counts down from your specified maximum, then goes to negative. Assigns the CSS class "tooLong" to the count only once it goes negative.
 
 ### updateButtons ###
+args: that (the editor object)
+
 Updates the state of the formatting buttons depending on the cursor location.
 
 ### setLink ###
-args: leftPosition (left position of formatting button)
+args: that (the editor object)
+	leftPosition (left position of formatting button)
 
 Displays the interface to set a URL and wires up the button in that interface to update the editor markup.
 
 ### stripHTML ###
+args: that (the editor object)
+	html (the editor's current innerHTML)
+
 Removes all markup except paragraphs and line breaks.
 
 ### stripHTMLComments ###
+args: that (the editor object)
+
 Removes HTML comments from content pasted into the editor.
 
 ### spellcheck ###
+args: that (the editor object)
+
 IE-only implementation, because other browsers include spellcheck. Sends the text within the editor to the service specified by the spellcheckUrl property, and expects an array of results in the format:
 
 	{originalWord: string, suggestions: []}
 
 Wraps each misspelling in a font tag, and wires up an event handler to display a small window with the suggestions and an option to ignore the misspelling. Clicking a suggestion replaces the misspelling and removes the font tag, clicking ignore simply removes the font tag.
+
+### handle ###
+args: eventName (the name of the pseudo-event - see next section)
+	callback (function to execute when the event occurs)
+	
+The "subscribe" portion of the editor's mini-pub/sub.
+
+## Events ##
+
+These get "fired" when certain functions are run.
+
+### wcte.loaded ###
+Fired after the editor is rendered and its event handlers have been wired up.
+
+### wcte.beforeRemove ###
+Fired when the editor is about to be removed from the page.
