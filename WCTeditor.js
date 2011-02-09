@@ -6,7 +6,7 @@
 (function($) {
 	var tmplLoaded = false;
 
-	function multiple(that, config) {
+	function _multiple(that, config) {
 		var editors = [];
 		$.each(that,function(i) {
 			editors.push($(this).WCTeditor(config));
@@ -14,7 +14,7 @@
 		return editors;
 	}
 
-	function loadTemplates(path) {		
+	function _loadTemplates(path) {		
 		// load editor templates
 		$.get(path + "tmpl/editor-tmpl.txt", function(r) {
 			$.template("wcteditorTemplate",r);	
@@ -28,10 +28,10 @@
 
 	$.fn.WCTeditor = function(config) {
 		
-		tmplLoaded || loadTemplates(config.pathToPlugin);
+		tmplLoaded || _loadTemplates(config.pathToPlugin);
 		
 		if (this[1]) {
-			return multiple(this, config);
+			return _multiple(this, config);
 		}
 
 		var defaults = {
