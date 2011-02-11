@@ -6,14 +6,6 @@
 (function($) {
 	var tmplLoaded = false;
 
-	function _multiple(that, config) {
-		var editors = [];
-		$.each(that,function(i) {
-			editors.push($(this).WCTeditor(config));
-		});
-		return editors;
-	}
-
 	function _loadTemplates(path) {		
 		// load editor templates
 		$.get(path + "tmpl/editor-tmpl.txt", function(r) {
@@ -32,59 +24,59 @@
 		
 		tmplLoaded || _loadTemplates(config.pathToPlugin);
 		
-		if (this[1]) {
-			return _multiple(this, config);
-		}
+		return this.each( function(i) {
 
-		var defaults = {
-				showBold: true,
-				showItalic: true,
-				showUnderline: false,
-				showNumList: false,
-				showBullList: false,
-				showLink: true,
-				showStripHtml: false,
-				showSpellCheck: false,
-				userClasses: [],
-				defaultText: null,
-				showCharCount: false,
-				charCountTmpl: "Characters remaining: {{html chars}}",
-				showLinkOverlays: true,
-				maxLength: 0,
-				spellcheckUrl: "",
-				pathToPlugin:"",
-				theme: "",
-				placeholderText: "",
-				textarea: this,
-				init: _init,
-				remove: _remove,
-				getRange: _getRange,
-				setSelection: _setSelection,
-				supportsContentEditable: _supportsContentEditable,
-				applyFormatting: _applyFormatting,
-				updateTextarea: _updateTextarea,
-				updateCharCount: _updateCharCount,
-				updateButtons: _updateButtons,
-				setLink: _setLink,
-				stripHTML: _stripHTML,
-				stripHTMLComments: _stripHTMLComments,
-				spellcheck: _spellcheck,
-				events: {}
-			},
-			that = $.extend(true,{},defaults,config);
+			var $t = $(this),
+				defaults = {
+					showBold: true,
+					showItalic: true,
+					showUnderline: false,
+					showNumList: false,
+					showBullList: false,
+					showLink: true,
+					showStripHtml: false,
+					showSpellCheck: false,
+					userClasses: [],
+					defaultText: null,
+					showCharCount: false,
+					charCountTmpl: "Characters remaining: {{html chars}}",
+					showLinkOverlays: true,
+					maxLength: 0,
+					spellcheckUrl: "",
+					pathToPlugin:"",
+					theme: "",
+					placeholderText: "",
+					textarea: $t,
+					init: _init,
+					remove: _remove,
+					getRange: _getRange,
+					setSelection: _setSelection,
+					supportsContentEditable: _supportsContentEditable,
+					applyFormatting: _applyFormatting,
+					updateTextarea: _updateTextarea,
+					updateCharCount: _updateCharCount,
+					updateButtons: _updateButtons,
+					setLink: _setLink,
+					stripHTML: _stripHTML,
+					stripHTMLComments: _stripHTMLComments,
+					spellcheck: _spellcheck,
+					events: {}
+				},
+				that = $.extend(true,{},defaults,config);
 
-		$.template("charCountTemplate",that.charCountTmpl);	
-		// load basic CSS
-		$.get((that.theme.length?that.pathToPlugin+"themes/"+that.theme+"/":that.pathToPlugin) + "WCTeditor.css", function(r) {
-			$("head").append('<style media="all">' + r + '</style>');		
-			// render editor
-			that = that.init(that);	
-		});	
-		that.handle = function(eventName, callback) {
-			_subscribe(that, eventName, callback);
-		};
-		
-		return that;
+			$.template("charCountTemplate",that.charCountTmpl);	
+			// load basic CSS
+			$.get((that.theme.length?that.pathToPlugin+"themes/"+that.theme+"/":that.pathToPlugin) + "WCTeditor.css", function(r) {
+				$("head").append('<style media="all">' + r + '</style>');		
+				// render editor
+				that = that.init(that);	
+			});	
+			that.handle = function(eventName, callback) {
+				_subscribe(that, eventName, callback);
+			};
+			this._WCTeditor = that;
+
+		});
 	};
 
 	function _init(that) {
