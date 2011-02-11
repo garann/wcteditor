@@ -49,6 +49,7 @@
 					textarea: $t,
 					init: _init,
 					remove: _remove,
+					reset: _reset,
 					getRange: _getRange,
 					setSelection: _setSelection,
 					supportsContentEditable: _supportsContentEditable,
@@ -203,6 +204,11 @@
 		_publish(this.events, "wcte.beforeRemove", this);
 		this.textarea.show();
 		this.container.remove();
+	}
+
+	function _reset() {
+		this.editor.html("");
+		this.updateTextarea();
 	}
 
 	function _getRange() {

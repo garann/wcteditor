@@ -111,14 +111,13 @@ A reference to the textarea the editor is replacing.
 You may want to override some of these to change the default functionality.
 
 ### init ###
-args: that (the editor object)
-
 Renders the editor and sets up its event handlers.
 
 ### remove ###
-args: that (the editor object)
-
 Removes the editor and shows the textarea again.
+
+### reset ###
+Removes all text and markup from the editor and its corresponding textarea.
 
 ### getRange ###
 Utility function: gets the current selection.
@@ -132,46 +131,33 @@ Utility function: sets the current selection.
 Utility function: uses a combo of feature detection and UA-sniffing to determine whether the editor will work.
 
 ### applyFormatting ###
-args: that (the editor object),
-type (the designMode command)
+args: type (the designMode command)
 
 Applies the basic designMode commands.
 
 ### updateTextarea ###
-args: that (the editor object)
-
 Pushes changes to the editor to your textarea, then calls updateCharCount if it's enabled.
 
 ### updateCharCount ###
-args: that (the editor object)
-
 Updates the character count. Counts down from your specified maximum, then goes to negative. Assigns the CSS class "tooLong" to the count only once it goes negative.
 
 ### updateButtons ###
-args: that (the editor object)
-
 Updates the state of the formatting buttons depending on the cursor location.
 
 ### setLink ###
-args: that (the editor object),
-leftPosition (left position of formatting button)
+args: leftPosition (left position of formatting button)
 
 Displays the interface to set a URL and wires up the button in that interface to update the editor markup.
 
 ### stripHTML ###
-args: that (the editor object),
-html (the editor's current innerHTML)
+args: html (the editor's current innerHTML)
 
 Removes all markup except paragraphs and line breaks.
 
 ### stripHTMLComments ###
-args: that (the editor object)
-
 Removes HTML comments from content pasted into the editor.
 
 ### spellcheck ###
-args: that (the editor object)
-
 IE-only implementation, because other browsers include spellcheck. Sends the text within the editor to the service specified by the spellcheckUrl property, and expects an array of results in the format:
 
 	{originalWord: string, suggestions: []}
