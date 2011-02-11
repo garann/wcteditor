@@ -60,7 +60,8 @@
 					stripHTML: _stripHTML,
 					stripHTMLComments: _stripHTMLComments,
 					spellcheck: _spellcheck,
-					events: {}
+					events: {},
+					handle: _subscribe
 				},
 				that = $.extend(true,{},defaults,config);
 
@@ -69,17 +70,15 @@
 			$.get((that.theme.length?that.pathToPlugin+"themes/"+that.theme+"/":that.pathToPlugin) + "WCTeditor.css", function(r) {
 				$("head").append('<style media="all">' + r + '</style>');		
 				// render editor
-				that = that.init(that);	
-			});	
-			that.handle = function(eventName, callback) {
-				_subscribe(that, eventName, callback);
-			};
+				that = that.init();	
+			});
 			this._WCTeditor = that;
 
 		});
 	};
 
-	function _init(that) {
+	function _init() {
+		var that = this;
 		// check to make sure contenteditable works - otherwise ABORT! ABORT! ABORT!
 		if (that.supportsContentEditable()) {	
 			that = $.extend(true,that,{
@@ -100,49 +99,49 @@
 			// setup button actions
 			that.container
 			.delegate(".wcte-btn-bold","click",function(e) {
-				that.applyFormatting(that,"bold");
+				that.applyFormatting("bold");
 				$(this).addClass("active");
 				return false;
 			})
 			.delegate(".wcte-btn-italic","click",function(e) {
-				that.applyFormatting(that,"italic");
+				that.applyFormatting("italic");
 				$(this).addClass("active");
 				return false;
 			})
 			.delegate(".wcte-btn-underline","click",function(e) {
-				that.applyFormatting(that,"underline");
+				that.applyFormatting("underline");
 				$(this).addClass("active");
 				return false;
 			})
 			.delegate(".wcte-btn-list-num","click",function(e) {
-				that.applyFormatting(that,"insertOrderedList");
+				that.applyFormatting("insertOrderedList");
 				$(this).addClass("active");
 				return false;
 			})
 			.delegate(".wcte-btn-list-bull","click",function(e) {
-				that.applyFormatting(that,"insertUnorderedList");
+				that.applyFormatting("insertUnorderedList");
 				$(this).addClass("active");
 				return false;
 			})
 			.delegate(".wcte-btn-link","click",function(e) {
 				var t = $(this);
-				that.setLink(that, t.position().left);
+				that.setLink(t.position().left);
 				t.addClass("active");
 				return false;
 			})
 			.delegate(".wcte-btn-unlink","click",function(e) {
-				that.applyFormatting(that,"unlink");
-				that.updateTextarea(that);
+				that.applyFormatting("unlink");
+				that.updateTextarea();
 				return false;
 			})
 			.delegate(".wcte-btn-strip","click",function(e) {
-				that.editor.html(that.stripHTML(that, $.trim(that.editor.html())));
-				that.updateTextarea(that);
-				that.stripHTMLComments(that);
+				that.editor.html(that.stripHTML($.trim(that.editor.html())));
+				that.updateTextarea();
+				that.stripHTMLComments();
 				return false;
 			})
 			.delegate(".wcte-btn-spell","click",function(e) {
-				that.spellcheck(that);
+				that.spellcheck();
 				return false;
 			});
 
@@ -157,7 +156,7 @@
 
 			that.editor.bind("keyup click",function(e) {
 					$(this).parent().find("div.wcte-modal").remove();
-				that.updateButtons(that).updateTextarea(that);
+				that.updateButtons().updateTextarea();
 			})
 			.bind("paste",function(e) {
 				// automatically strip HTML from pasted content for non-IE browsers
@@ -170,13 +169,13 @@
 							range = document.createRange();
 						if (inserted.length) {						
 							range.selectNode(inserted[0]); 
-							var cleandup = that.stripHTML(that, range.toString().trim());
+							var cleandup = that.stripHTML(range.toString().trim());
 							range.deleteContents();
 							hr.after(cleandup);
 						}
 						that.editor.find("hr").remove();
-						that.updateTextarea(that)
-						that.stripHTMLComments(that);
+						that.updateTextarea()
+						that.stripHTMLComments();
 					},1);
 				}
 			})
@@ -200,10 +199,10 @@
 		return that;
 	}
 
-	function _remove(that) {
-		_publish(that.events, "wcte.beforeRemove", that);
-		that.textarea.show();
-		that.container.remove();
+	function _remove() {
+		_publish(this.events, "wcte.beforeRemove", this);
+		this.textarea.show();
+		this.container.remove();
 	}
 
 	function _getRange() {
@@ -234,31 +233,32 @@
 	}
 
 	// do basic designMode commands
-	function _applyFormatting(that, type) {
+	function _applyFormatting(type) {
 		document.execCommand(type, null, null);
-		that.updateTextarea(that);
+		this.updateTextarea();
 	}
 
 	// mirror changes in original textarea
-	function _updateTextarea(that) {
-		var p = that.editor.find("span.wcte-placeholder");
-		if (p[0] && that.editor.text().length) p.remove(); 
-		var current = that.editor.html().replace(/&nbsp;/g," ");
-		that.textarea.val(current);
-		if (that.showCharCount) that.updateCharCount(that);
-		return that;
+	function _updateTextarea() {
+		var p = this.editor.find("span.wcte-placeholder");
+		if (p[0] && this.editor.text().length) p.remove(); 
+		var current = this.editor.html().replace(/&nbsp;/g," ");
+		this.textarea.val(current);
+		if (this.showCharCount) this.updateCharCount();
+		return this;
 	}
 
 	// update character counter
-	function _updateCharCount(that) {
-		var l = that.maxLength - that.editor.text().length;
-		that.charCount.removeClass("tooLong");
-		that.charCount.html(l);
-		if (l < 0) that.charCount.addClass("tooLong");
+	function _updateCharCount() {
+		var l = this.maxLength - this.editor.text().length;
+		this.charCount.removeClass("tooLong");
+		this.charCount.html(l);
+		if (l < 0) this.charCount.addClass("tooLong");
 	}
 
 	// show correct formatting button states for cursor position
-	function _updateButtons(that) {
+	function _updateButtons() {
+		var that = this;
 		if (that.editor.text().length < 1) return that;
 		$("div.wcte-buttons button",that.container).removeClass("active");
 		var range = that.getRange();
@@ -287,9 +287,10 @@
 	}
 				
 	// show interface to add a URL to current selection
-	function _setLink(that, leftPosition) {
-		var linkText = that.getRange();
-		var href = (linkText.startContainer ? 
+	function _setLink(leftPosition) {
+		var that = this,
+			linkText = that.getRange(),
+			href = (linkText.startContainer ? 
 			$(linkText.startContainer).closest("a") :
 			$(linkText.parentElement()) || $(linkText.parentElement()).closest("a")).attr("href");
 		that.container.append($.tmpl("linkModalTemplate",{href: href}));
@@ -301,7 +302,7 @@
 			that.setSelection(linkText);
 			document.execCommand("createLink",null,(link.indexOf("//") < 0 ? "http://" + link : link));
 			modal.remove();
-			that.updateTextarea(that);
+			that.updateTextarea();
 		});	
 		modal.find("a").click(function(e) {
 			modal.remove();
@@ -311,7 +312,7 @@
 	}
 
 	// remove all markup except paragraphs and line breaks
-	function _stripHTML(that, html) {
+	function _stripHTML(html) {
 		var strippedContent = html.replace(/<!(?:--[\s\S]*?--\s*)?>\s*/g,"");						// comments.. does this even work? innerhtml seems to dump html comments
 		strippedContent = strippedContent.replace(/\r\n|\r|\n/g,"<br/>");							// non-html line breaks
 		strippedContent = strippedContent.replace(/\u00A0\u00A0/g," ");								// tons of spaces
@@ -322,14 +323,15 @@
 	}
 
 	// remove html comments from textarea b/c innerHTML of contenteditable element doesn't include them
-	function _stripHTMLComments(that) {
-		var html = that.textarea.val(),
+	function _stripHTMLComments() {
+		var html = this.textarea.val(),
 			strippedContent = html.replace(/<!(?:--[\s\S]*?--\s*)?>\s*/g,"");
-		that.textarea.val(strippedContent);
-		that.editor.html(strippedContent);
+		this.textarea.val(strippedContent);
+		this.editor.html(strippedContent);
 	}
 
-	function _spellcheck(that) {
+	function _spellcheck() {
+		var that = this;
 		if (document.body.createTextRange) {
 			// get text
 			var vals = that.editor.text(),
@@ -361,15 +363,15 @@
 						t.replaceWith(sug.hasClass("wcte-sug") ? sug.text() : t.text());
 						sug.parent().remove();
 						if (!that.editor.find("font").length) btn.removeClass("errors");
-						that.updateTextarea(that);
+						that.updateTextarea();
 					});
 			})
 		}
 	}
 
-	function _subscribe(that, eventName, callback) {
-		that.events[eventName] || (that.events[eventName] = []);
-		that.events[eventName].push(callback);
+	function _subscribe(eventName, callback) {
+		this.events[eventName] || (this.events[eventName] = []);
+		this.events[eventName].push(callback);
 	}
 
 	function _publish(events, eventName, args) {
