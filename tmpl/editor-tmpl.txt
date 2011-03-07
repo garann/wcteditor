@@ -26,10 +26,10 @@
 		<button class="wcte-btn-spell" title="spell-check">spell-check</button>
 	{{/if}}
 	</div>
-	<div class="wcte-editor" contenteditable="true">{{tmpl "contentsTemplate"}}</div>
+	<div class="wcte-editor" contenteditable="true">{{tmpl contentsTmpl}}</div>
 	{{if showCharCount}}
 		<div class="wcte-charCount">
-			{{tmpl "charCountTemplate"}}
+			{{tmpl charCountTmpl}}
 		</div>
 	{{/if}}
 </div>

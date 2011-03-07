@@ -11,8 +11,7 @@
 		$.get(path + "tmpl/editor-tmpl.txt", function(r) {
 			$.template("wcteditorTemplate",r);	
 			tmplLoaded = true;
-		});	
-		$.template('contentsTemplate','<span class="wcte-placeholder">${placeholderText}</span> ');
+		});			
 		$.template('linkModalTemplate','<div class="wcte-linkModal wcte-modal"><label>URL:<input type="text" value="${href}"/></label><button>OK</button><a>Cancel</a></div>');
 		$.template('linkOverlayTemplate','<div class="wcte-linkOverlay wcte-modal" contenteditable="false">${url}<br/><a href="${url}" target="_blank">Open link</a></div>');
 		$.template('spellCheckTemplate','<div class="wcte-spellCheckModal wcte-modal" contenteditable="false">{{each suggestions}}<a class="wcte-sug">${$value}</a><br/>{{/each}}<a>Ignore</a></div>');
@@ -65,8 +64,9 @@
 					handle: _subscribe
 				},
 				that = $.extend(true,{},defaults,config);
+			that.placeholderTmpl = '<span class="wcte-placeholder">${placeholderText}</span> ';
+			that.charCountTmpl = "<!-- tmpl -->" + that.charCountTmpl;
 
-			$.template("charCountTemplate",that.charCountTmpl);	
 			// load basic CSS
 			$.get((that.theme.length?that.pathToPlugin+"themes/"+that.theme+"/":that.pathToPlugin) + "WCTeditor.css", function(r) {
 				$("head").append('<style media="all">' + r + '</style>');		
@@ -88,7 +88,9 @@
 			});
 			that.defaultText = that.defaultText || that.textarea.val();
 			if (that.defaultText.length) {
-				$.template('contentsTemplate','{{html defaultText}} ');
+				that.contentsTmpl = '<!-- tmpl -->{{html defaultText}} ';
+			} else {
+				that.contentsTmpl = that.placeholderTmpl;
 			}
 			// only show spellcheck for IE, since it's only gonna work for IE and only IE doesn't do it automatically
 			that.showSpellCheck = that.showSpellCheck && document.body.createTextRange;
@@ -186,7 +188,7 @@
 			})
 			.blur(function(){
 				if (that.editor.text().length < 1 && !that.editor.find("span.wcte-placeholder")[0])
-					that.editor.prepend($.tmpl("contentsTemplate",that));
+					that.editor.prepend($.tmpl(that.placeholderTmpl,that));
 			})
 			.delegate("a","click",function(e) {
 				e.stopPropagation();
