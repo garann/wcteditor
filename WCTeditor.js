@@ -87,7 +87,7 @@
 				maxLength: that.textarea.attr(that.maxLengthAttribute),
 				chars: '<span class="chars">' + that.maxLength + '</span>'
 			});
-			that.defaultText = that.defaultText || that.textarea.val();
+			that.defaultText = that.defaultText || that.textarea.val() || '<br />'; // <br /> for Firefox cursor bug
 			if (that.defaultText.length) {
 				that.contentsTmpl = '<!-- tmpl -->{{html defaultText}} ';
 			} else {
