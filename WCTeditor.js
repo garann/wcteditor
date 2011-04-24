@@ -320,6 +320,7 @@
 			$(linkText.startContainer).closest("a") :
 			$(linkText.parentElement()) || $(linkText.parentElement()).closest("a")).attr("href");
 		that.container.append($.tmpl("linkModalTemplate",{href: href}));
+		that.container.find('input.wcte-linkModal ').focus(); 
 		var modal = that.container.find("div.wcte-linkModal");
 		modal.css("left",leftPosition);
 		var finalizeLink = function(){
