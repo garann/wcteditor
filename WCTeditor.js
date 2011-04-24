@@ -174,10 +174,6 @@
 						that.applyFormatting("italic");
 					} else if (e.keyCode == 66){ // 66 == b
 						that.applyFormatting("bold");
-					} else if (e.keyCode == 65){ // 65 == a
-						that.setLink(that.container.find('.wcte-btn-link').addClass('active').position().left);
-						that.container.find('.wcte-linkModal input').focus();
-						return false;
 					} else if (e.keyCode == 85){ //85 == u
 						that.applyFormatting("underline")
 					}
@@ -346,7 +342,7 @@
 				finalizeLink();	
 			}
 		});
-		return that;				
+		return that;	
 	}
 
 	// remove all markup except paragraphs and line breaks
