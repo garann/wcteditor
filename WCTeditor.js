@@ -157,9 +157,27 @@
 			that.buttons["ul"] = $("button.wcte-btn-list-bull",that.container);
 			that.buttons["a"] = $("button.wcte-btn-link",that.container);
 
-			that.editor.bind("keyup click",function(e) {
+			that.keystate = { ctrl: false };
+			that.editor.bind("keyup keydown click",function(e) {
+				if (that.keystate.ctrl == false){
 					$(this).parent().find("div.wcte-modal").remove();
+				}
 				that.updateButtons().updateTextarea();
+				// 17 ctrl key, 91 cmd key (mac)
+				if (e.type == 'keydown' && (e.keyCode == 17 || e.keyCode == 91)){
+					that.keystate.ctrl = true;
+				} else if (e.type == 'keyup' && (e.keyCode == 17 || e.keyCode == 91)){ 
+					that.keystate.ctrl = false;
+				}
+				if (e.type == 'keydown' && that.keystate.ctrl == true){
+					if (e.keyCode == 73){ // 73 == i
+						that.applyFormatting("italic");
+					} else if (e.keyCode == 66){ // 66 == b
+						that.applyFormatting("bold");
+					} else if (e.keyCode == 85){ //85 == u
+						that.applyFormatting("underline")
+					}
+				}	
 			})
 			.bind("paste",function(e) {
 				// automatically strip HTML from pasted content for non-IE browsers
@@ -302,21 +320,30 @@
 			$(linkText.startContainer).closest("a") :
 			$(linkText.parentElement()) || $(linkText.parentElement()).closest("a")).attr("href");
 		that.container.append($.tmpl("linkModalTemplate",{href: href}));
+		that.container.find('input.wcte-linkModal ').focus(); 
 		var modal = that.container.find("div.wcte-linkModal");
 		modal.css("left",leftPosition);
-		modal.find("button").click(function(e) {
-			e.preventDefault();
+		var finalizeLink = function(){
 			var link = modal.find("input").val();
 			that.setSelection(linkText);
 			document.execCommand("createLink",null,(link.indexOf("//") < 0 ? "http://" + link : link));
 			modal.remove();
 			that.updateTextarea();
-		});	
+		};
 		modal.find("a").click(function(e) {
 			modal.remove();
 			return false;
 		});
-		return that;				
+		modal.find("button").click(function(e) {
+			e.preventDefault();
+			finalizeLink();
+		});
+		modal.find("input").keyup(function(e) {
+			if (e.keyCode == 13){
+				finalizeLink();	
+			}
+		});
+		return that;	
 	}
 
 	// remove all markup except paragraphs and line breaks
