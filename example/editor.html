@@ -19,14 +19,25 @@
 	<h1>WCTeditor example 2</h1>
 	<textarea id="otherTextArea" rows="3" cols="40" maxlength="500">This one has stuff in it..</textarea>
 
-
+	<script src="../showdown.js"></script>
+	<script src="../to-markdown.js"></script>
 	<script src="../WCTeditor.js"></script>
 	<script>
 		$(document).ready(function() {
-			$("textarea").WCTeditor({
+			$("#myTextArea").WCTeditor({
 				placeholderText:"PUT WORDS HERE",
 				showCharCount:true,
 				pathToPlugin:"../"
+			});
+			$("#otherTextArea").WCTeditor({
+				placeholderText: "Try it in markdown",
+				showCharCount: false,
+				pathToPlugin: "../",
+				showNumList: true,
+				showBullList: true,
+				showH2: true,
+				showLink: false,
+				showMarkdown: true
 			});
 		});
 	</script>

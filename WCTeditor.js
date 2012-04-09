@@ -32,9 +32,13 @@
 					showUnderline: false,
 					showNumList: false,
 					showBullList: false,
+					showH1: false,
+					showH2: false,
+					showH3: false,
 					showLink: true,
 					showStripHtml: false,
 					showSpellCheck: false,
+					showMarkdown: false,
 					userClasses: [],
 					defaultText: null,
 					showCharCount: false,
@@ -60,8 +64,10 @@
 					stripHTML: _stripHTML,
 					stripHTMLComments: _stripHTMLComments,
 					spellcheck: _spellcheck,
+					markdown: _markdown,
 					events: {},
-					handle: _subscribe
+					handle: _subscribe,
+					mkdwnConverter: null
 				},
 				that = $.extend(true,{},defaults,config);
 			that.placeholderTmpl = '<span class="wcte-placeholder">${placeholderText}</span> ';
@@ -126,6 +132,24 @@
 				$(this).addClass("active");
 				return false;
 			})
+			.delegate(".wcte-btn-h1","click",function(e) {
+				document.execCommand("formatBlock", null, "h1");
+				this.updateTextarea();
+				$(this).addClass("active");
+				return false;
+			})
+			.delegate(".wcte-btn-h2","click",function(e) {
+				document.execCommand("formatBlock", null, "h2");
+				this.updateTextarea();
+				$(this).addClass("active");
+				return false;
+			})
+			.delegate(".wcte-btn-h3","click",function(e) {
+				document.execCommand("formatBlock", null, "h3");
+				this.updateTextarea();
+				$(this).addClass("active");
+				return false;
+			})
 			.delegate(".wcte-btn-link","click",function(e) {
 				var t = $(this);
 				that.setLink(t.position().left);
@@ -145,6 +169,10 @@
 			})
 			.delegate(".wcte-btn-spell","click",function(e) {
 				that.spellcheck();
+				return false;
+			})
+			.delegate(".wcte-btn-mkdwn","click",function(e) {
+				that.markdown();
 				return false;
 			});
 
@@ -214,6 +242,9 @@
 				t.after($.tmpl("linkOverlayTemplate",{url:t.attr("href")}));
 				t.siblings("div.wcte-modal").css("left",pos.left).css("top",pos.top + 20);
 			});
+		}
+		if (that.showMarkdown) {
+			that.mkdwnConverter = new Showdown.converter();
 		}
 
 		_publish(that.events, "wcte.loaded", that);
@@ -401,6 +432,27 @@
 						that.updateTextarea();
 					});
 			})
+		}
+	}
+
+	function _markdown() {
+		// check whether markdown editor currently visible
+		var btn = $(".wcte-btn-mkdwn"),
+			inMkdwn = btn.hasClass("active"),
+			vals = this.editor.html(),
+			mkdwnEditor = this.container.find(".wcte-mkdwn-editor");
+		if (inMkdwn) {
+			// if yes: convert markdown to html, show wysiwyg
+			this.editor.html(this.mkdwnConverter.makeHtml(mkdwnEditor.val()));
+			this.editor.show();
+			mkdwnEditor.hide();
+			btn.removeClass("active");
+		} else {
+			// if no: convert html to markdown, show markdown editor
+			mkdwnEditor.val(toMarkdown(vals));
+			this.editor.hide();
+			mkdwnEditor.show();
+			btn.addClass("active");
 		}
 	}
 

@@ -15,6 +15,15 @@
 	{{if showBullList}}
 		<button class="wcte-btn-list-bull" title="create bulleted list">ul</button>
 	{{/if}}
+	{{if showH1}}
+		<button class="wcte-btn-h1" title="create primary heading">h1</button>
+	{{/if}}
+	{{if showH2}}
+		<button class="wcte-btn-h2" title="create secondary heading">h2</button>
+	{{/if}}
+	{{if showH3}}
+		<button class="wcte-btn-h3" title="create tertiary heading">h3</button>
+	{{/if}}
 	{{if showLink}}
 		<button class="wcte-btn-link" title="link selected text">a</button>
 		<button class="wcte-btn-unlink" title="unlink selected text">/a</button>
@@ -25,8 +34,14 @@
 	{{if showSpellCheck}}
 		<button class="wcte-btn-spell" title="spell-check">spell-check</button>
 	{{/if}}
+	{{if showMarkdown}}
+		<button class="wcte-btn-mkdwn" title="toggle markdown view">toggle markdown view</button>
+	{{/if}}
 	</div>
 	<div class="wcte-editor" contenteditable="true">{{tmpl contentsTmpl}}</div>
+	{{if showMarkdown}}
+		<textarea class="wcte-mkdwn-editor">{{tmpl contentsTmpl}}</textarea>
+	{{/if}}
 	{{if showCharCount}}
 		<div class="wcte-charCount">
 			{{tmpl charCountTmpl}}

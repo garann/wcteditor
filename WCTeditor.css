@@ -14,3 +14,4 @@
 .wcte-linkModal a { cursor: pointer; margin-left: 5px; }
 .wcte-linkOverlay, .wcte-spellCheckModal { position: absolute; }
 .wcte-spellCheckModal { max-height: 100px; width: 200px; overflow-y: auto; }
+.wcte-mkdwn-editor { display: none; width: 500px; height: 200px; background-color: #fff; padding: 5px; border: 1px solid #999; -moz-border-radius: 2px; -webkit-border-radius: 2px; overflow-y: scroll; }
