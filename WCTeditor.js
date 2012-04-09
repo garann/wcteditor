@@ -450,6 +450,7 @@
 		} else {
 			// if no: convert html to markdown, show markdown editor
 			mkdwnEditor.val(toMarkdown(vals));
+			mkdwnEditor.val(mkdwnEditor.val().replace(/<!(?:--[\s\S]*?--\s*)?>\s*/g,""));
 			this.editor.hide();
 			mkdwnEditor.show();
 			btn.addClass("active");
