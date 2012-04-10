@@ -7,9 +7,11 @@ A super-simple text editor for modern browsers. Supports:
 + underline
 + numbered lists
 + bulleted lists
++ headings 1-3
 + links
 + stripping html (except line breaks/paragraphs)
 + spell-check via callback
++ toggling back and forth between WYSIWYG and markdown modes
 
 Tested so far and works ok in:
 
@@ -54,6 +56,18 @@ Whether or not you'd like the ordered list button to be shown.
 boolean:
 Whether or not you'd like the unordered list button to be shown.
 
+### showH1 ###
+boolean:
+Whether or not you'd like the primary heading button to be shown.
+
+### showH2 ###
+boolean:
+Whether or not you'd like the secondary heading button to be shown.
+
+### showH3 ###
+boolean:
+Whether or not you'd like the tertiary heading button to be shown.
+
 ### showLink ###
 boolean:
 Whether or not you'd like the link button to be shown. On by default.
@@ -65,6 +79,10 @@ Whether or not you'd like the strip/clean up HTML button to be shown.
 ### showSpellCheck ###
 boolean:
 Whether or not you'd like the spellcheck button to be shown.
+
+### showMarkdown ###
+boolean:
+Whether or not you'd like the markdown editor button to be shown.
 
 ### userClasses ###
 array of strings:
@@ -164,6 +182,9 @@ IE-only implementation, because other browsers include spellcheck. Sends the tex
 
 Wraps each misspelling in a font tag, and wires up an event handler to display a small window with the suggestions and an option to ignore the misspelling. Clicking a suggestion replaces the misspelling and removes the font tag, clicking ignore simply removes the font tag.
 
+### markdown ###
+Toggles back and forth between markdown and WYSIWYG modes, preserving formatting.
+
 ### handle ###
 args: eventName (the name of the pseudo-event - see next section),
 callback (function to execute when the event occurs)
@@ -179,3 +200,10 @@ Fired after the editor is rendered and its event handlers have been wired up.
 
 ### wcte.beforeRemove ###
 Fired when the editor is about to be removed from the page.
+
+## Dependencies ##
+
++ jQuery
++ jQuery templates (plan to switch to something lighter/still supported)
++ [to-markdown](https://github.com/domchristie/to-markdown)
++ [showdown](https://github.com/coreyti/showdown)
