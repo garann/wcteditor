@@ -179,3 +179,7 @@ Fired after the editor is rendered and its event handlers have been wired up.
 
 ### wcte.beforeRemove ###
 Fired when the editor is about to be removed from the page.
+
+## License ##
+
+[WTFPL](http://sam.zoy.org/wtfpl/)
