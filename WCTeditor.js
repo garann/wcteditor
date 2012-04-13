@@ -73,6 +73,13 @@
 			that.placeholderTmpl = '<span class="wcte-placeholder">${placeholderText}</span> ';
 			that.charCountTmpl = "<!-- tmpl -->" + that.charCountTmpl;
 
+			// load JS dependencies
+			$.get(that.pathToPlugin + "showdown.js", function(r) {
+				$("body").append("<script>" + r + "</script>");
+			});
+			$.get(that.pathToPlugin + "to-markdown.js", function(r) {
+				$("body").append("<script>" + r + "</script>");
+			});
 			// load basic CSS
 			$.get((that.theme.length?that.pathToPlugin+"themes/"+that.theme+"/":that.pathToPlugin) + "WCTeditor.css", function(r) {
 				$("head").append('<style media="all">' + r + '</style>');		
@@ -134,19 +141,19 @@
 			})
 			.delegate(".wcte-btn-h1","click",function(e) {
 				document.execCommand("formatBlock", null, "h1");
-				this.updateTextarea();
+				that.updateTextarea();
 				$(this).addClass("active");
 				return false;
 			})
 			.delegate(".wcte-btn-h2","click",function(e) {
 				document.execCommand("formatBlock", null, "h2");
-				this.updateTextarea();
+				that.updateTextarea();
 				$(this).addClass("active");
 				return false;
 			})
 			.delegate(".wcte-btn-h3","click",function(e) {
 				document.execCommand("formatBlock", null, "h3");
-				this.updateTextarea();
+				that.updateTextarea();
 				$(this).addClass("active");
 				return false;
 			})
@@ -184,6 +191,9 @@
 			that.buttons["ol"] = $("button.wcte-btn-list-num",that.container);
 			that.buttons["ul"] = $("button.wcte-btn-list-bull",that.container);
 			that.buttons["a"] = $("button.wcte-btn-link",that.container);
+			that.buttons["h1"] = $("button.wcte-btn-h1",that.container);
+			that.buttons["h2"] = $("button.wcte-btn-h2",that.container);
+			that.buttons["h3"] = $("button.wcte-btn-h3",that.container);
 
 			that.keystate = { ctrl: false };
 			that.editor.bind("keyup keydown click",function(e) {
@@ -228,9 +238,9 @@
 					},1);
 				}
 			})
-			.focus(function(){
+			.mouseup(function(){
 				if (that.editor.text().length > 0)
-				that.setSelection(that.getRange());
+					that.setSelection(that.getRange());
 			})
 			.blur(function(){
 				if (that.editor.text().length < 1 && !that.editor.find("span.wcte-placeholder")[0])
@@ -436,10 +446,11 @@
 	}
 
 	function _markdown() {
+		this.updateTextarea();
 		// check whether markdown editor currently visible
 		var btn = $(".wcte-btn-mkdwn"),
 			inMkdwn = btn.hasClass("active"),
-			vals = this.editor.html(),
+			vals = this.textarea.val(),
 			mkdwnEditor = this.container.find(".wcte-mkdwn-editor");
 		if (inMkdwn) {
 			// if yes: convert markdown to html, show wysiwyg
