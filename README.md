@@ -207,3 +207,7 @@ Fired when the editor is about to be removed from the page.
 + jQuery templates (plan to switch to something lighter/still supported)
 + [to-markdown](https://github.com/domchristie/to-markdown)
 + [showdown](https://github.com/coreyti/showdown)
+
+## License ##
+
+[WTFPL](http://sam.zoy.org/wtfpl/)
