@@ -41,6 +41,7 @@
 					charCountTmpl: "Characters remaining: {{html chars}}",
 					showLinkOverlays: true,
 					maxLength: 0,
+					maxLengthAttribute: "maxlength",
 					spellcheckUrl: "",
 					pathToPlugin:"",
 					theme: "",
@@ -83,10 +84,10 @@
 		// check to make sure contenteditable works - otherwise ABORT! ABORT! ABORT!
 		if (that.supportsContentEditable()) {	
 			that = $.extend(true,that,{
-				maxLength: that.textarea.attr("maxlength"),
+				maxLength: that.textarea.attr(that.maxLengthAttribute),
 				chars: '<span class="chars">' + that.maxLength + '</span>'
 			});
-			that.defaultText = that.defaultText || that.textarea.val();
+			that.defaultText = that.defaultText || that.textarea.val() || '<br />'; // <br /> for Firefox cursor bug
 			if (that.defaultText.length) {
 				that.contentsTmpl = '<!-- tmpl -->{{html defaultText}} ';
 			} else {
